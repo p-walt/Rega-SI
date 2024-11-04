@@ -1,0 +1,7 @@
+name: CH_deploy
+channels:
+  - conda-forge
+  - mcocdawc
+dependencies:
+  - python=3.8
+  - flask
