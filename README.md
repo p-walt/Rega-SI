@@ -1,4 +1,6 @@
- 
+
+![rega2](https://github.com/user-attachments/assets/223390c6-206f-4128-aec5-6bf1caf027d2)
+
 Rega is an automated high-throughput transition state location program for the generation of machine learning datasets to predict regioselectivity. While the current state of the Rega is designed for the calculation of C-H functionalisation transition states, its modularity allows for easy adaptation to any system of interest.  
 The basic functionality of Rega is outlined below:
 
