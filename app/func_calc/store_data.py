@@ -12,6 +12,7 @@ import chemcoord as cc
 
 
 def findlargest(arr):
+    # TODO RA: docs?
     secondlargest = arr[0]
     largest = arr[0]
     for i in range(len(arr)):
@@ -20,7 +21,7 @@ def findlargest(arr):
 
     for i in range(len(arr)):
         if arr[i] > secondlargest and arr[i] != largest:
-            secondLargest = arr[i]
+            secondLargest = arr[i] # TODO RA: This will break
 
     return secondlargest
 
@@ -40,7 +41,7 @@ def store_data(compound_name, smiles, compound_sites, radical, reactant_optimise
         @param directory: Compound Directory.
         @param prev_molecule_dict: If calculated previously the molecule dictionary is passed into the function and the
         new radical data is added.
-        @return: Data dictionary."""
+        @return: Data dictionary."""# TODO RA: types?
     fplus_dict = {}
     fmin_dict = {}
     f0_dict = {}
@@ -49,6 +50,8 @@ def store_data(compound_name, smiles, compound_sites, radical, reactant_optimise
     mulliken_dict = {}
     esp_dia_dict = {}
     elec_density_dict = {}
+    # TODO RA: Hard coded values...
+
     if radical == 'cf3':
         radical_reactant_energy = -1583.81910
     else:
@@ -684,7 +687,7 @@ def store_data(compound_name, smiles, compound_sites, radical, reactant_optimise
                 radicals_dict.update({str(radical): radical_dict})
                 molecule_dict.update({'radicals': radicals_dict})
 
-    hf_site_ea = {}
+    hf_site_ea = {} # Could use a single nested dictionary? Will clean this up abit. 
     hf_diff_ea = {}
     hf_arr_ea = {}
     hf_ratio_ea = {}
@@ -810,3 +813,6 @@ def store_data(compound_name, smiles, compound_sites, radical, reactant_optimise
             molecule_dict["radicals"][str(radical)][str(site)]["am1_ratio"] = am1_ratio_ea[site]
     
     return molecule_dict
+
+
+# TODO RA: Would be good to have somewere a description of the data dictionary. (What its structure is)

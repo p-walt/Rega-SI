@@ -9,6 +9,8 @@ import subprocess
 # with open('sites_work.txt', 'r', encoding='utf-8') as wo_ol:
 #     old_work_sites = wo_ol.readlines()
 
+
+# TODO RA: Should probably be within a function. 
 with open('analysis_files.txt', 'r', encoding='utf-8') as file:
     directory = Path.cwd()
 
@@ -31,6 +33,7 @@ with open('analysis_files.txt', 'r', encoding='utf-8') as file:
                 print('FOUND IT')
                 if os.path.isfile(str(Path(f'{dire}/{str(Path("/")).join(splitted[:-1])}/hfoutp.out'))):
                     with open(str(Path(f'{dire}/{str(Path("/")).join(splitted[:-1])}/hfoutp.out')), 'r', encoding='utf-8') as ou:
+                        # TODO RA: some strange variable names here... I would say some explanation is required as to what is going on, or making the variables more explicit. Also recommend against using fi as a variable as some languages use this as an end if statement. (bash)
                         rl = ou.readlines()
                         fi = []
                         for ine in rl:
@@ -38,6 +41,7 @@ with open('analysis_files.txt', 'r', encoding='utf-8') as file:
                         print(fi[-100:-1])
                         if 'Pleasecitethefollowingreferencewhenpublishing' not in fi[-100:-1]:
                             print('didnt finish')
+                            # TODO RA: Hard-coded... Needs fixing. Also be careful with windows and linux paths. If only works on one this should be stated. 
                             print('rsync', '-e', r'ssh -i C:\Users\pcypw1\.ssh\sulis_key', '-a',
                                                      'pcypw1@login.sulis.ac.uk:' + '/home/p/pcypw1/10May1622' + '/' + '/'.join(
                                                          splitted[:-1]) + '/hfoutp.out', str(Path('/')).join(['.', str(dire.split(str(Path("/")))[-1]), str(Path('/')).join(splitted[-5:-1])]) + '/hfoutp.out')
@@ -49,6 +53,7 @@ with open('analysis_files.txt', 'r', encoding='utf-8') as file:
                             status = outp.decode()
                             print(status)
                     if not os.path.isfile(str(Path(f'{dire}/{str(Path("/")).join(splitted[:-1])}/hfoutp.out'))):
+                        # TODO RA: hard coded. Needs fixing. 
                         print('rsync', '-e', r'ssh -i C:\Users\pcypw1\.ssh\sulis_key', '-a',
                               'pcypw1@login.sulis.ac.uk:' + '/home/p/pcypw1/10May1622' + '/' + '/'.join(
                                   splitted[:-1]) + '/hfoutp.out', str(Path('/')).join(['.', str(dire.split(str(Path("/")))[-1]),
@@ -80,7 +85,7 @@ with open('analysis_files.txt', 'r', encoding='utf-8') as file:
                                     tmp = ' '.join(li.split())
                                     new = tmp.split(' ')[1:]
                                     frequencies.append(new)
-                                else:
+                                else: # TODO RA: "else continue" is not needed. Continue is rarely needed. 
                                     continue
                             print(frequencies)
                             if frequencies:

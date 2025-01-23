@@ -1,5 +1,5 @@
 import csv
-
+ # TODO RA:  Is this needed. Also feels like this data could be stored in a better format. 
 
 val1 = ['3-{[(4-methylphenyl)sulfonyl]amino}propyl pyridin-4-ylcarbamate', '4-(1h-Imidazol-4-Yl)-3-(5-Ethyl-2,4-Dihydroxy-Phenyl)-1h-Pyrazole',
         'ONO-2952', 'Asciminib', 'Lifirafenib', 'Metoserpate', 'Aminophenazone', 'Pirfenidone', 'Pelitinib',

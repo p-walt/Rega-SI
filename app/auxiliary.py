@@ -4,6 +4,7 @@ from rdkit.Chem.Draw import rdMolDraw2D
 
 
 def valid_smiles(smiles):
+     # TODO RA: Docstring. Would be good to know what the return values mean. 
     try:
         canon = Chem.MolToSmiles(Chem.MolFromSmiles(smiles))
         mol = Chem.MolFromSmiles(canon)
@@ -19,6 +20,7 @@ def valid_smiles(smiles):
 
 
 def valid_smiles_multiple(f):
+    # TODO RA: Docstring. Would be good to know what the return values mean. 
     smiles = f.iloc[:, 1].tolist()
     smiles.append(list(f)[1])
     smile_xyz_dict = {}
@@ -50,6 +52,8 @@ def check_size(smiles):
 
 
 def check_size_multiple(f):
+    # TODO RA: Docstring. Would be good to know what the return values mean. 
+
     smiles = f.iloc[:, 1].tolist()
     smiles.append(list(f)[1])
     smiles_length = []
@@ -66,6 +70,8 @@ def check_size_multiple(f):
 
 
 def get_image_data(smiles, sites):
+    # TODO RA: Docstring. Would be good to know what the return values mean. 
+
     canonical_smiles = Chem.MolToSmiles(Chem.MolFromSmiles(smiles))
     mol = Chem.MolFromSmiles(canonical_smiles)
     d = rdMolDraw2D.MolDraw2DSVG(250, 250)

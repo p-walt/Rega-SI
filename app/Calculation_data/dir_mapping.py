@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
-import subprocess
-
+import subprocess # TODO RA: Subprocess not needed
+# TODO RA: I would make this a function. Then docstring. 
 with open('all_calcs.txt', 'r', encoding='utf-8') as file:
     directory = Path.cwd()
     dir_list = []

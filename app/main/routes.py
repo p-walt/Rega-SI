@@ -17,6 +17,7 @@ from datetime import datetime
 @main_bp.route('/home', methods=['GET', 'POST'])
 @main_bp.route('/', methods=['GET', 'POST'])
 def home():
+    # TODO RA: docstring?
     if request.method == "POST":
         if request.form["choice"] == "Input Molecule":
             return redirect(url_for("main.single"))
@@ -27,6 +28,7 @@ def home():
 
 @main_bp.route('/single', methods=['GET', 'POST'])
 def single():
+    # TODO RA: Docstring?
     if pycharm == 1:
         if "Calculation_data" not in os.getcwd():
             start = Path.cwd() / 'ML-for-CH' / 'app' / 'Calculation_data'
@@ -103,6 +105,7 @@ def single():
 
 @main_bp.route('/multiple', methods=['GET', 'POST'])
 def multiple():
+    # TODO RA: Docstring?
     if pycharm == 1:
         if "Calculation_data" not in os.getcwd():
             start = Path.cwd() / 'ML-for-CH' / 'app' / 'Calculation_data'
@@ -194,6 +197,7 @@ def multiple():
 
 @main_bp.route('/download_results', methods=['GET', 'POST'])
 def download_results():
+     # TODO RA: Docstring?
     if pycharm == 1:
         if "Calculation_data" not in os.getcwd():
             start = Path.cwd() / 'ML-for-CH' / 'app' / 'Calculation_data'

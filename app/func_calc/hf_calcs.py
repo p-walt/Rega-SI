@@ -6,6 +6,7 @@ import subprocess
 import re
 import sys
 
+# TODO RA: hard coded. 
 PyReact_path = Path(r'C:\\Users\\pcypw1\\Documents\\PhD\\GitHub\\ML-for-CH\\app\\PyReact_Scripts\\PyReact.py')
 
 
@@ -17,7 +18,7 @@ def generate_hf_geometry(directory, radical, failed=False, multiple=False):
     @param failed: True/False boolean that tells the function AM1 searches failed or not. If so it will look for
     different AM1 output files and find the last valid geometry that could be used as a HF starting point.
     @param multiple: Whether this is a calculation for multiple compounds at once or not.
-    @return: """
+    @return: """ # TODO RA: types?
     if failed is False:
 
         if os.path.isfile(Path(f'{directory}/ts2.out')):
@@ -206,7 +207,7 @@ def generate_hf_geometry(directory, radical, failed=False, multiple=False):
     # check_call('C:\\Users\\pcypw1\\Documents\\PhD\\PyReact_Scripts\\PyReact.py' )
 
 
-def run_pyreact(command):
+def run_pyreact(command): # Could you not make pyReact a function and then just call the function... 
     """ Function that calls the Pyreact scripts using the subprocess module.
     @param command: The string of commands given to PyReact.
     @param files_to_run: The list of files for each compound/site to be calcualted on the HPC. Full path names required.
@@ -259,7 +260,7 @@ def check_hf_geometry(geometry, carbon_radical, site):
     @param carbon_radical: Which functional group is being added to the system
     @param site: Which site within the molecule is being checked.
     @return: Boolean that states whether C-C bond length is within a typical range.
-    """
+    """ # TODO RA: types?
     with open(f'{geometry}', 'r+')as f:
         lin = f.readlines()
         coords = lin[2:]
@@ -298,7 +299,7 @@ def hf_freq_check(freq_dict, nwchem):
     @param freq_dict: The dictionary of file paths as the key and the corresponding frequencies from the output file as
      the value.
     @param nwchem: Boolean on whether the NWChem software package is being used.
-    @return:
+    @return: # TODO RA: types?
     """
     redo_list = []
     print(freq_dict)
@@ -347,7 +348,7 @@ def hf_freq_check(freq_dict, nwchem):
             redo_geometry_generator(file, nwchem, transition_state=False)
             file_list.append(str(Path("/")).join(file.split(str(Path("/")))[:-1]))
         pyreact_files = " ".join([str(Path(f'{i}')) + str(Path('/hf2.sdf')) for i in file_list])
-        if nwchem is False:
+        if nwchem is False: # TODO RA: Number of processors being hardcoded could be problematic. what if 8 CPU's not available? 
             run_pyreact(f'-d a --mult 2 --FC --NoEigen -F UHF --nProc 8 --TS --Rega --array {pyreact_files}', pyreact_files.split(
                 ' '), first_run=False)
         else:
@@ -360,7 +361,7 @@ def redo_geometry_generator(out_file, nwchem, transition_state=False):
     @param out_file: The full file path of the HF output file.
     @param nwchem: Boolean on whether the NWChem software package is being used.
     @param transition_state: Boolean on whether the geometry should be labelled as the true HF transition state or a
-    starting point for the second round of HF TS searching with tightened convergence criteria."""
+    starting point for the second round of HF TS searching with tightened convergence criteria."""# TODO RA: types?
     if nwchem is False:
         atom_dict = {'1': 'H', '6': 'C', '7': 'N', '8': 'O', '9': 'F', '14': 'Si', '15': 'P', '16': 'S', '17': 'Cl',
                      '35': 'Br',
@@ -368,7 +369,7 @@ def redo_geometry_generator(out_file, nwchem, transition_state=False):
         with open(f'{str(Path("/")).join(out_file.split(str(Path("/")))[:-1])}{str(Path("/hfoutp.out"))}', 'r') as rf, open(f'{str(Path("/")).join(out_file.split(str(Path("/")))[:-1])}{str(Path("/out_rev.txt"))}', 'w') as wf:
             for line in reversed(rf.readlines()):
                 wf.write(line)
-
+        # TODO RA: Again why make a new file to reverse the list? 
         with open(f'{str(Path("/")).join(out_file.split(str(Path("/")))[:-1])}{str(Path("/out_rev.txt"))}', 'r') as file:
             a = []
             coordinates = []

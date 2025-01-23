@@ -8,7 +8,7 @@ import subprocess
 #
 # with open('sites_work.txt', 'r', encoding='utf-8') as wo_ol:
 #     old_work_sites = wo_ol.readlines()
-
+# TODO RA: Make a function? 
 with open('remote_filelist1.txt', 'r', encoding='utf-8') as file:
     directory = Path.cwd()
 
@@ -86,8 +86,8 @@ with open('remote_filelist1.txt', 'r', encoding='utf-8') as file:
                                 print(frequencies)
                                 if frequencies:
                                     frequencies = [item for sublist in frequencies for item in sublist]
-
-                                    print('LOOKING AT TS FREQUENCIES')
+                                    # TODO RA: Maybe explain some of these if statements? the chemical backing maybe? 
+                                    print('LOOKING AT TS FREQUENCIES') # TODO RA: What if freq less than -800?
                                     if - 800 <= float(frequencies[0]) <= - 300:
                                         if 0.00 <= float(frequencies[1]):
                                             print('Transition State')
@@ -95,7 +95,7 @@ with open('remote_filelist1.txt', 'r', encoding='utf-8') as file:
                                             #     if line2 not in old_comp_sites:
                                             sites_complete.append(str(Path(f'{dire.split(str(Path("/")))[-1]}/{line2}')))
                                             continue
-                                        elif - 100 <= float(frequencies[1]) <= - 0.01:
+                                        elif - 100 <= float(frequencies[1]) <= - 0.01: # TODO RA: Isnt this also a TS? 
                                             if 0.00 <= float(frequencies[2]):
                                                 print('Close to transition state')
                                                 # if line2 not in old_work_sites:

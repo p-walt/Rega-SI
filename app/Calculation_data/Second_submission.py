@@ -57,6 +57,9 @@
 #                     file.write(f'{va}      {key}\n')
 #             else:
 #                 file.write(f'{value}      {key}\n')
+
+# TODO RA: This needs cleaning up. Also consider making a function?
+
 locations = []
 with open('Reagents_redo.txt', 'r') as file:
     lines = file.readlines()

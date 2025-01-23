@@ -1,8 +1,8 @@
 import os
-import shutil
+import shutil # TODO RA: Not used.
 from pathlib import Path
-import subprocess
-
+import subprocess # TODO RA: Not used.
+# TODO RA: Make a function
 with open('property_calculations.txt', 'r', encoding='utf-8') as file:
     lines = file.readlines()
     cwd = Path.cwd()

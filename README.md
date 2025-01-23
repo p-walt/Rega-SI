@@ -12,8 +12,20 @@ The basic functionality of Rega is outlined below:
 
 •	Monitoring of remote HPC calculation and active correction of failing calculations to maximise success rate.
 
-In order to run the graphical user interface (GUI), the Python package Flask is used which parses the user’s inputs and feeds the required information into Rega. It is therefore preferred to run Rega through an IDE such as PyCharm with the run configuration set to a Flask server with the startup script set to app/app.py.
-The python environment required to run Rega is Conda due to its dependency on RDKit. Alongside RDKit, a number of different Python packages are required. An up-to-date list of package requirements are listed below as well as in the requirements.txt file:
+In order to run the graphical user interface (GUI), the Python package Flask is used which parses the user’s inputs and feeds the required information into Rega. It is therefore preferred to run Rega through an IDE such as PyCharm with the run configuration set to a Flask server with the startup script set to app/app.py. 
+The python environment required to run Rega is Conda due to its dependency on RDKit. Alongside RDKit, a number of different Python packages are required. An up-to-date list of package requirements are listed below as well as in the requirements.txt file: 
+<!---
+TODO: RA How do you do all these things. You need to explain explicitly how to install this for people who have never used flask. I would also say that you dont need the requirements in both the readme and the requirements.txt. Probably leave in the requirements if i was you. The only thing I would pop in the readme is if anything requires a very specific version or python version. 
+-->
+
+<!---
+TODO: I would put an example of how to run the code. Maybe with an example input file.
+-->
+
+<!---
+TODO: There is no requirements.txt
+TODO: Docker doesnt work. There is no mopac. 
+-->
 
 numpy~=1.26.4
 
@@ -50,6 +62,3 @@ openbabel~=3.1.1
 flask-wtf
 
 flask-login
-
-
-

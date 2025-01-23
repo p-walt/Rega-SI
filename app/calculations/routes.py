@@ -16,6 +16,7 @@ from pathlib import Path
 @calculations_bp.route('/my_calculations', methods=['GET', 'POST'])
 @login_required
 def my_calculations():
+    # TODO RA: Docstring
     calcs = []
     for calc in select(u for u in db.Calculation if current_user.email == u.email):
         calc = calc.to_dict()
@@ -41,6 +42,8 @@ def my_calculations():
 @calculations_bp.route('/reload/<data>', methods=['GET', 'POST'])
 @login_required
 def reload(data):
+    # TODO RA: Docstring
+
     data = ast.literal_eval(data)
     if pycharm == 1:
         if "Calculation_data" not in os.getcwd():

@@ -48,7 +48,7 @@ class RegistrationForm(FlaskForm):  # this class defines the registration form f
     error is triggered by raising ValidationError. The message included 
     as the argument in the exception will be the message that will be 
     displayed next to the field for the user to see."""
-    """The database queries are now using select() from Pony.orm"""
+    """The database queries are now using select() from Pony.orm""" # TODO RA: Should be a comment. 
     def validate_username(self, username):
         user = select(u for u in db.User if username.data == u.username).first()
         if user is not None:

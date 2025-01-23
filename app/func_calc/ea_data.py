@@ -24,7 +24,7 @@ def read_mopac_output(in_file, out_file, directory):
     @param out_file: File name to write to.
     @param directory: Directory where files can be found.
     @return: Code of either 1 (completed successfully) or 2 (Failed calculation)
-    """
+    """ # TODO RA: types?
     # Read am1 output line by line but reverse order and put into new temporary file out_rev.txt.
     with open(in_file) as rf, open(Path(f'{directory}/out_rev.txt'), 'w') as wf:
         for line in reversed(rf.readlines()):

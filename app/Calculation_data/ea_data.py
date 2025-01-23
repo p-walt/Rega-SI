@@ -2,7 +2,7 @@ from func_calc.store_data import store_data as sd
 from pathlib import Path
 import os
 import json
-
+# TODO RA: Make this a function. 
 with open('all_calcs1.txt', 'r') as all_calcs:
     alines1 = all_calcs.readlines()
     aline2 = []
@@ -17,6 +17,7 @@ with open('all_calcs1.txt', 'r') as all_calcs:
     for aline1 in alines1:
         st = aline1.strip('\n')
         aline2.append(st)
+        # TODO RA: What is this doing?
     with open('sites_complete.txt', 'r') as comp_calcs:
         clines1 = comp_calcs.readlines()
         cline2 = []
@@ -25,7 +26,7 @@ with open('all_calcs1.txt', 'r') as all_calcs:
             ct = cline1.strip('\n')
             ct_split = ct.split(str(Path('/')))
             cline3.append('/'.join(ct_split[1:]))
-            cline2.append(ct)
+            cline2.append(ct) # TODO RA: Avoid using .append. It is incredibly slow and so should be avaoided at all costs. Its' less of a problem if you dont do it many times but it tends to be bad in for loops. Consider fstrings instead? 
 
     compounds_dict = {}
     compounds_di = {}

@@ -27,7 +27,7 @@ def define_database():
         password_hash = Required(str)
 
         """Password hashing is implemented 
-        by the two following methods"""
+        by the two following methods""" # TODO RA: Should be a comment. 
 
         def check_password(self, password):
             return check_password_hash(self.password_hash, password)

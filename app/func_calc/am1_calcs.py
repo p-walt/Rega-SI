@@ -28,7 +28,8 @@ def calculated_previously(starting_dir, canonical_smiles, single=True, multiple=
                           compound_name=None, molecule_sites_dict=None, compounds_dict=None, row=None, radical=None):
     # Previously Calculated key: 1 = Compound has been previously calculated in both AM1 and HF methods
     #                            2 = Compound has not been previosuly calculated in either AM1 or HF methods.
-    #                            3 = Compound has been calculated in AM1 but not in HF method yet.
+    #                            3 = Compound has been calculated in AM1 but not in HF method yet. 
+    # TODO RA: Docstring?
     previously_calculated = 2
     compound_yes_rad_no = False
     prev_calculated_dir = None
@@ -301,6 +302,7 @@ def calculated_previously(starting_dir, canonical_smiles, single=True, multiple=
 
 
 def calculate_am1_energies_list(input_file, starting_directory, csv_dir, random_string, hpc_calcs):
+    # TODO RA: Docstring?
     with open(f'{input_file}') as csv_file:
         compounds_dict = {}
         ts_converged = {}
@@ -520,7 +522,7 @@ def calculate_am1_energies_list(input_file, starting_directory, csv_dir, random_
                              Path(f'{csv_dir}/{md5_hash}/am1.dat')], stdout=DEVNULL,
                             stderr=STDOUT)
                     # os.system('obabel -ixyz mm.xyz -omopin -O am1.dat > /dev/null 2>&1')
-                    for site in aromatic_atom:
+                    for site in aromatic_atom: # TODO RA: This is a bit confusing, I feel like this could be a nested for loop over a list of files? 
                         if os.path.isdir(Path(f'{csv_dir}/{md5_hash}/{site}')):
                             pass
                         else:
@@ -862,6 +864,7 @@ def calculate_am1_energies_list(input_file, starting_directory, csv_dir, random_
 
 
 def calculate_am1_energies_single(compound_name, smiles, radical, calc_directory, new_molecule_directory, hpc_calcs):
+    # TODO RA: docstring
     compounds_dict = {}
     ts_converged = {}
     pos_charged = False

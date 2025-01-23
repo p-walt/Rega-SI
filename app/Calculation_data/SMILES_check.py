@@ -1,5 +1,7 @@
 from rdkit import Chem
 import csv
+# TODO RA: Make a function? 
+# TODO RA: Maybe some comments/docs to explain. 
 
 with open('Whole_molecule_corrected_reagents.csv', 'r') as csv_file:
     compounds_dict = {}

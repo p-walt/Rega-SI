@@ -7,7 +7,7 @@ import func_calc.hf_calcs as hf
 from app import pycharm
 from pathlib import Path
 
-if pycharm == 1:
+if pycharm == 1: # TODO RA: Is this hard coded? Also is pycharm a variable to identify windows?
     mopac_path = "C:\\Program Files\\MOPAC\\MOPAC2016.exe"
 else:
     mopac_path = '/app/mopac/MOPAC2016.exe'
@@ -21,8 +21,10 @@ def read_mopac_output(in_file, out_file, directory):
     @param out_file: File name to write to.
     @param directory: Directory where files can be found.
     @return: Code of either 1 (completed successfully) or 2 (Failed calculation)
-    """
+    """ # TODO RA: docstrings should really contain types. 
     # Read am1 output line by line but reverse order and put into new temporary file out_rev.txt.
+    # TODO RA: This feels like making a temp file just to have do some file analysis is abit inefficient... 
+
     with open(in_file) as rf, open(Path(f'{directory}/out_rev.txt'), 'w') as wf:
         for line in reversed(rf.readlines()):
             wf.write(line)
@@ -78,14 +80,14 @@ def read_mopac_output(in_file, out_file, directory):
             del coordinate[0]
 
         coordinate1 = '\t'.join(map(str, coordinate))
-        coordinates.append(coordinate1)
+        coordinates.append(coordinate1) # TODO RA: .append is bad... incredibly slow. try: Nat = len(trimmed); coordinates = [None]*Nat; coordinates[i] = coordinate1 (I know this doesnt actually work but something along these lines would be better)
     system_size = len(trimmed)
     # Write AM1 optimised coordinates to an xyz file
     with open(out_file, 'w+') as xyz:
         xyz.write(str(system_size) + '\n\n')
         for i in coordinates:
             xyz.write(str(i) + '\n')
-    os.remove(Path(f'{directory}/out_rev.txt'))
+    os.remove(Path(f'{directory}/out_rev.txt')) # TODO RA: I dont think this being a file is useful... just read it into a list and then delete the list
     return 1
 
 
@@ -96,7 +98,7 @@ def mopac_distance_checks(geometry, carbon_radical, site):
     @param carbon_radical: Which Functional group is being investigated.
     @param site: Which site within the compound is being investigated.
     @return: Boolean that decides whether the distance is within the typical range.
-    """
+    """ # TODO RA: again should have types
     try:
         with open(f'{geometry}', 'r+')as f:
             lin = f.readlines()
@@ -110,7 +112,7 @@ def mopac_distance_checks(geometry, carbon_radical, site):
                 for element in line_elements:
                     line.append(element.split('\t'))
                 flat_list = [item for sublist in line for item in sublist]
-                cart.append(flat_list)
+                cart.append(flat_list) # TODO RA: Again... avoid .append
             if carbon_radical == 'cf3':
                 carbon = cart[-4]
             elif carbon_radical == 'cf2h':
@@ -136,9 +138,9 @@ def read_mopac_freq(input_file, directory):
     """return codes: 1 = true transition state
                      2 = close to transition state with a second small imaginary frequency
                      3 = 3 or more negative frequencies or large second imaginary frequency, needs further intervention
-                     4 = no imaginary frequency in correct range, needs other intervention"""
+                     4 = no imaginary frequency in correct range, needs other intervention""" # TODO RA: This should really have docstring formatting. 
     # Read am1 output line by line but reverse order and put into new temporary file out_rev.txt.
-    with open(input_file) as rf, open(Path(f'{directory}/out_rev.txt'), 'w') as wf:
+    with open(input_file) as rf, open(Path(f'{directory}/out_rev.txt'), 'w') as wf: # TODO RA: Is this just copying the file??? if not os.system(f'cp {input_file} {Path(f'{directory}/out_rev.txt')}') would be better??
         for line in rf.readlines():
             wf.write(line)
 
@@ -166,7 +168,7 @@ def read_mopac_freq(input_file, directory):
                 break
     # Remove the lines CARTESIAN COORDINATES and EIGENVALUES and the blank lines before and after the coordinates of
     # interest.
-    os.remove(Path(f'{directory}/out_rev.txt'))
+    os.remove(Path(f'{directory}/out_rev.txt')) # TODO RA: Again... why is this a file? as apposed to just an object. Temp files should be for large data sets that may cause memory issues...
     try:
         b = re.split(' +', a[6])[1:]
         if - 800 <= float(b[0]) <= - 300:
@@ -196,8 +198,8 @@ def mopac_freq_check(inpu, positively_charged, radical, site, directory, new_mop
     @param directory: Folder where the files are found.
     @param new_mopac_2016: Whether the new MOPAC 2016 is being used or not.
     @param multiple: Whether this is a calculation for multiple compounds at once or not.
-    @return: Boolean
-    """
+    @return: Boolean 
+    """ # TODO RA: types? Also what does the boolean mean?
     check_call(['obabel', '-ixyz', str(inpu), '-omopin', '-O', Path(f'{directory}/tmp.dat')],
                stdout=DEVNULL, stderr=STDOUT)
     # os.system(f'obabel -ixyz {inpu} -omopin -O tmp.dat > /dev/null 2>&1')
@@ -421,7 +423,7 @@ def mopac_freq_check(inpu, positively_charged, radical, site, directory, new_mop
             return False
 
 
-def check_for_clashes(geometry, query_atom, directory, clash_threshold=1):
+def check_for_clashes(geometry, query_atom, directory, clash_threshold=1): # TODO RA: directory is not used. 
     """
     Function that checks the built transition state geometry from the template to see whether there are any clashes
     between the compound of interest and the radical being added to the system. It checks the distance between each
@@ -430,7 +432,7 @@ def check_for_clashes(geometry, query_atom, directory, clash_threshold=1):
     @param query_atom: The atom number in system that distance checks need ot performed on.
     @param directory: The firectory the calculations are being executed in
     @param clash_threshold: The minimum distance between the atom of interest and other atoms in the system.
-    @return: """
+    @return: """ # TODO RA: types?
     clashes = False
 
     with open(f'{geometry}', 'r+') as inp:
@@ -445,7 +447,7 @@ def check_for_clashes(geometry, query_atom, directory, clash_threshold=1):
             for element in line_elements:
                 line.append(element.split('\t'))
             flat_list = [item for sublist in line for item in sublist]
-            cart.append(flat_list)
+            cart.append(flat_list) # TODO RA: .append... 
     distances = []
     atom_of_concern = cart[query_atom-1]
     for atom_no in cart:
@@ -479,8 +481,8 @@ def cf3(input_file, xyz, site, directory, positively_charged=False, constrained=
      off again with an initial constrained optimisation and subsequent relaxed TS search.
     @param precise: Whether the precise keyword should be added to the MOPAC calculation.
     @param new_mopac_2016: Whether we are running on the new mopac_2016 version or not (alters how the output
-    information is formatted)
-    """
+    information is formatted) 
+    """# TODO RA: types?
     with open(input_file) as file:
 
         lines = file.readlines()
@@ -535,7 +537,7 @@ def cf3(input_file, xyz, site, directory, positively_charged=False, constrained=
         for dihed in angle_connection:
             if len(connection_table[dihed]) != 1 and dihed != angle_atom and dihed != site:
                 # dihedral_connection = connection_table[dihed]
-                dihedral_atoms.append(dihed)
+                dihedral_atoms.append(dihed) 
             else:
                 pass
         dihedral_atom = min(dihedral_atoms)
@@ -620,7 +622,7 @@ def cf2h(input_file, xyz, site, directory, positively_charged=False, constrained
     @param precise: Whether the precise keyword should be added to the MOPAC calculation.
     @param new_mopac_2016: Whether we are running on the new mopac_2016 version or not (alters how the output
     information is formatted)
-    """
+    """ # TODO RA: types?
     with open(input_file) as file:
 
         lines = file.readlines()
@@ -645,6 +647,7 @@ def cf2h(input_file, xyz, site, directory, positively_charged=False, constrained
                 lines[0] = 'AM1 TS LET MMOK GEO-OK PRECISE CHARGE=+1 UHF\n'
             else:
                 lines[0] = 'AM1 TS LET MMOK GEO-OK PRECISE CHARGE=+1 DISP UHF\n'
+        # TODO RA: This could be a fstring ^^^
 
         if not constrained:
             const = 1
@@ -817,7 +820,7 @@ def ipr(input_file, xyz, site, directory, positively_charged=False, constrained=
                 dihedral_atoms.append(dihed)
             else:
                 pass
-        dihedral_atom = min(dihedral_atoms)
+        dihedral_atom = min(dihedral_atoms) # TODO RA: Should these be hard coded? If so consider having a dictionary of standard values and store at the top of the file. Makes editing much easier. 
         # print(f'site is: {site}, angle atom is: {angle_atom}, dihedral atom is: {dihedral_atom}')
         c1_dihed = 254.264918
         c2_dihed = 301.336871
@@ -829,7 +832,7 @@ def ipr(input_file, xyz, site, directory, positively_charged=False, constrained=
         h5_dihed = 69.148928
         h6_dihed = 308.139965
         h7_dihed = 188.805597
-
+        # TODO RA: Again is all this meant to be hard coded?
         lines.append(f'C    2.021139  {const}  100.078262  1  {c1_dihed}  1     {site}   {angle_atom}   {dihedral_atom}\n')
         lines.append(f'C    1.482068  1  104.004890  1  {c2_dihed}  1     {atom_count + 1}  {site}   {angle_atom}\n')
         lines.append(f'C    1.481423  1  104.119367  1  {c3_dihed}  1     {atom_count + 1}  {site}   {angle_atom}\n')
@@ -1077,7 +1080,7 @@ def cf2h_reactant(input_file, xyz, site, directory, positively_charged=False, re
 
             lines = file.readlines()
 
-            if positively_charged is False:
+            if positively_charged is False: # TODO RA: You should make a function that does this, rather than re-making the same code over and over.
                 if new_mopac_2016 is False:
                     lines[0] = 'AM1 LET MMOK GEO-OK PRECISE\n'
                 else:
@@ -1130,7 +1133,8 @@ def cf2h_reactant(input_file, xyz, site, directory, positively_charged=False, re
                 else:
                     pass
             dihedral_atom = min(dihedral_atoms)
-            # print(f'site is: {site}, angle atom is: {angle_atom}, dihedral atom is: {dihedral_atom}')
+            # print(f'site is: {site}, angle atom is: {angle_atom}, dihedral atom is: {dihedral_atom}') 
+            # TODO RA: Should these be hard coded? If so consider having a dictionary of standard values and store at the top of the file. Makes editing much easier.
             c_dihed = 102.600000
             f1_dihed = 57.2481322
             h_dihed = -66.4380492
@@ -1235,7 +1239,7 @@ def cf2h_reactant(input_file, xyz, site, directory, positively_charged=False, re
 
 
 def ipr_reactant(input_file, xyz, site, directory, positively_charged=False, reagent_optimised=True, new_mopac_2016=False, multiple=False):
-
+    # TODO RA: docstring? 
     if not reagent_optimised:
         with open(input_file) as file:
 
@@ -1383,7 +1387,7 @@ def ipr_reactant(input_file, xyz, site, directory, positively_charged=False, rea
                                check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-3, directory),
                                check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-2, directory),
                                check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-1, directory),
-                               check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian), directory)]
+                               check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian), directory)] # TODO RA: For loop?
 
         os.remove(Path(f'{directory}/temp_ts.dat'))
         os.remove(Path(f'{directory}/temp_ts.xyz'))
@@ -1434,6 +1438,7 @@ def ipr_reactant(input_file, xyz, site, directory, positively_charged=False, rea
 
 
 def tweak_distance(input_file, radical, directory):
+     # TODO RA: Docstring?
     os.remove(Path(f'{directory}/ts2.out'))
     with open(f'{input_file}', 'r+') as relaxed:
         lines = relaxed.readlines()
