@@ -4,8 +4,8 @@ pony
 lxml
 rdkit
 wtforms
-flask
-werkzeug
+flask~=2.3.3
+werkzeug~=2.3.8
 python-dateutil
 requests
 scipy
@@ -13,6 +13,5 @@ pillow
 pandas
 plotly
 chemcoord
-openbabel
 flask-wtf
 flask-login

@@ -30,6 +30,7 @@ def calculated_previously(starting_dir, canonical_smiles, single=True, multiple=
     #                            2 = Compound has not been previosuly calculated in either AM1 or HF methods.
     #                            3 = Compound has been calculated in AM1 but not in HF method yet. 
     # TODO RA: Docstring?
+
     previously_calculated = 2
     compound_yes_rad_no = False
     prev_calculated_dir = None
