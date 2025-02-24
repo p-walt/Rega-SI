@@ -31,7 +31,7 @@ def single():
     # TODO RA: Docstring?
     if pycharm == 1:
         if "Calculation_data" not in os.getcwd():
-            start = Path.cwd() / 'ML-for-CH' / 'app' / 'Calculation_data'
+            start = Path.cwd() / 'Calculation_data'
     else:
         if "Calculation_data" not in os.getcwd():
             start = Path.cwd() / 'Calculation_data'
