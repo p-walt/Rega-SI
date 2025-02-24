@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container text-center">
+<h2>Theory</h2><br>
+</div>
+<div class="container text-left">
+    Rega focuses on the regioselectivity predictions for Sulfinate Salt-mediated C-H Functionalisation reactions.
+    Mechanistic studies of this reaction show that regioselectivity is kinetically controlled by the addition of a
+    carbon-centred radical to the arene. As such, it can be assummed that the likelihood of a reaction occurring can be
+    determined using the activation energy of the formation of the radical addition transition state. Regioselectivity
+    can be determined by calculating the activation energy for the rate limiting step of the reaction at each possible
+    site of reaction in the molecule. The ratio of each regioisomer is then found by inputting these activation energies
+    into the Arrhenius equation. A large difference in activation energy between sites corresponds to a large proportion
+    of theisomer with the lowest E<sub>a</sub> and small amounts of product with substitution at higher E<sub>a</sub>
+    sites. A smaller difference in activation energies between sites leads to a mixture of regioisomers.<br><br>
+    Currently activation energies are calculated at an AM1 level of theory. In future this will be updated to use
+    HF/6-31G* derived energies which have been tested to more accurately reflect experimentally observed
+    regioselectivity.
+</div>
+{% endblock %}

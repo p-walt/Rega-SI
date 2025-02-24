@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container text-center">
+    {% if current_user.is_anonymous %}
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+        You are currently a guest user. Please <a href="{{ url_for('auth.auth') }}" class="alert-link">login or register</a> to save your calculations.
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <br>
+    {% endif %}
+<h2>Welcome to Rega</h2><br>
+<p class="lead">Please choose an option to get started</p><br>
+<div class="card-deck mb-3 text-center">
+    <div class="card mb-4 box-shadow">
+        <div class="card-header">
+            <h4 class="my-0 font-weight-normal">Single Compound</h4>
+        </div>
+        <div class="card-body">
+            <ul class="list-unstyled mt-3 mb-4">
+                <li>Draw molecule or input SMILES</li>
+                <li>Choose from three radicals</li>
+                <li>Calculate activation energies</li>
+                <li>View and download reactivity report</li>
+            </ul>
+
+        <form action="" method="post" novalidate>
+            <input type="submit" name="choice" value="Input Molecule" class="btn btn-lg btn-block btn-primary">
+        </div>
+        </div>
+    <div class="card mb-4 box-shadow">
+        <div class="card-header">
+            <h4 class="my-0 font-weight-normal">Multiple Compounds</h4>
+        </div>
+        <div class="card-body">
+            <ul class="list-unstyled mt-3 mb-4">
+                <li>Upload list of molecule as .csv file</li>
+                <li>Specify one of three radicals for each molecule</li>
+                <li>Calculate activation energies</li>
+                <li>View and download reactivity reports</li>
+            </ul>
+            <input type="submit" name="choice" value="Upload File" class="btn btn-lg btn-block btn-primary">
+            </form>
+        </div>
+    </div>
+</div>
+</div>
+{% endblock %}

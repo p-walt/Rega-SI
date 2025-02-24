@@ -1,0 +1,26 @@
+div#loading{
+    display:none;
+    margin: auto;
+    border: 10px solid #EAF0F6;
+    border-radius: 50%;
+    border-top: 10px solid darkblue;
+    width: 70px;
+    height: 70px;
+    animation: spinner 4s linear infinite;
+}
+
+@keyframes spinner {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+div#content-calculator{
+    display:block;
+}
+
+div#loading_text{
+    display: none;
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+}

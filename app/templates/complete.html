@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container text-center">
+<h2>Calculations Complete</h2><br>
+</div>
+<div class="container">
+{% if mode == "single" %}
+<a href="{{url_for('main.single')}}" class="btn btn-link btn-lg">Calculate Another Compound</a>
+{% elif mode == "multiple" %}
+<a href="{{url_for('main.multiple')}}" class="btn btn-link btn-lg">Calculate Another Compound</a>
+{% endif %}
+</div>
+<div class="container text-center">
+  {% for compound in compounds %}
+    Compound: {{compound}}<br>
+    Radical: {{ radicals[compound] }}<br><br>
+    <div class="row">
+    <div class="col">
+      <table class="table table-striped">
+      <thead>
+        <tr>
+          <th scope="col">
+            Site
+          </th>
+          <th scope="col">
+            Activation Energy (kcal.mol<sup>-1</sup>)
+          </th>
+          <th scope="col">
+              Regioisomeric Ratio
+          </th>
+      </tr>
+      </thead>
+      <tbody>
+        {% for key, value in compound_eas[compound].items() %}
+          <tr>
+            <td>
+              {{ key }}
+            </td>
+            <td>
+              {{ value }}
+            </td>
+            <td>
+                {{ compound_ratios[compound][key] }}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <br><br>
+
+    </div>
+    <div class="col">
+      <div id="image{{ loop.index }}" style="margin: auto"></div>
+        <input type="hidden" id="image-data{{ loop.index }}" value="{{ image_data[loop.index - 1] }}">
+        <script>
+        $(document).ready(function() {
+            var image_number = $("#image-number").val();
+            var image_data = $("#image-data" + image_number).val();
+            $("#image" + image_number).append($('<div>').html(image_data));
+            $("#image-number").val(Number($("#image-number").val()) + 1);
+        })
+        </script>
+    </div>
+
+  </div>
+  <br><br>
+  {% endfor %}
+
+<a href="{{url_for('main.download_results', random_name=random_name, mode=mode) }}" target="blank"><button class="btn btn-primary">Download Results</button></a>
+<br>
+<br>
+<br>
+
+{% if 'priority' in data %}
+    <p>Priority: {{ data['priority'] }}</p>
+{% endif %}
+<input type="hidden" id="image-number" value="1">
+</div>
+{% endblock %}
