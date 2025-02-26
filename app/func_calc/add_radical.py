@@ -10,7 +10,7 @@ from pathlib import Path
 if pycharm == 1: # TODO RA: Is this hard coded? Also is pycharm a variable to identify windows?
     mopac_path = "C:\\Program Files\\MOPAC\\MOPAC2016.exe"
 else:
-    mopac_path = '/app/mopac/MOPAC2016.exe'
+    mopac_path = 'mopac'
 
 
 def read_mopac_output(in_file, out_file, directory):

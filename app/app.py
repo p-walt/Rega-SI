@@ -57,7 +57,7 @@ def define_database():
         return db.User.get(id=user_id)
 
 
-pycharm = 1
+pycharm = 0
 
 app = Flask(__name__)  # creates the app object
 

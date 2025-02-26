@@ -20,7 +20,7 @@ if pycharm == 1:
     mopac_path = "C:\\Program Files\\MOPAC\\MOPAC2016.exe"
     start_path = "ML-for-CH\\app\\Calculation_data"
 else:
-    mopac_path = '/app/mopac/MOPAC2016.exe'
+    mopac_path = "mopac"
     start_path = "/app/Calculation_data"
 
 

@@ -30,5 +30,6 @@ COPY requirements.txt requirements.txt
 
 # The code to run when container is started:
 COPY . .
-EXPOSE 80
-ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "CH_deploy", "python", "app.py"]
+EXPOSE 5000
+# ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "CH_deploy", "python", "app.py"]
+ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "CH_deploy", "python", "-m", "flask", "run"]
