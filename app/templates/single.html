@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container text-center">
+<h2>Single Compound</h2><br>
+<div id="loading_text">
+<p>Calculation in Progress: Do not refresh or leave this page</p><br>
+</div>
+<div id="loading"></div>
+<div id="content-calculator">
+
+<p class="lead">For single compound calculation either draw a molecule or input the SMILES below</p><br><br>
+<div id="marvin-editor" style="margin: auto; width: 70%; height: 500px;"></div><br>
+<button id="transfer-structure" class="btn btn-primary">Transfer/Update SMILES</button><br><br>
+<form action="" method="post" novalidate>
+    {{ form.hidden_tag() }}
+    {{ form.name.label }}: {{ form.name }}<br>
+    {{ form.smiles.label }}: {{ form.smiles }}<br>
+    {{ form.radical.label }}: {{ form.radical }}<br>
+    {{ form.hpc_calcs.label }}: {{ form.hpc_calcs }}<br><br>
+    {{ form.submit_single }}<br>
+</form>
+{% for error in errors %}
+<div class="alert alert-danger" style="margin: auto; width: 70%" role="alert">
+  {{ error }}
+</div>
+{% endfor %}
+<br>
+<script type="text/javascript" src="{{ url_for('static', filename='js/marvin.js') }}"></script>
+</div>
+</div>
+<script>
+    function loading(){
+        var content = document.getElementById("content-calculator");
+        content.style.display = "none";
+        var loading_text = document.getElementById("loading_text");
+        loading_text.style.display = "block";
+        var loading = document.getElementById("loading");
+        loading.style.display = "block";
+    }
+</script>
+{% endblock %}

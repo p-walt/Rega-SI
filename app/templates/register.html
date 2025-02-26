@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container text-center">
+    <h2>Register</h2><br>
+    <div class="form-outline mb-4" style="margin: auto; width: 50%">
+        <form action="" method="post">
+            {{ form.hidden_tag() }}
+            {{ form.username }}<br>
+            {% for error in form.username.errors %}
+                <div class="alert alert-danger" style="margin: auto; width: 70%" role="alert">
+                    {{ error }}<br>
+                </div>
+            {% endfor %}
+            {{ form.fullname }}<br>
+            {% for error in form.fullname.errors %}
+                <div class="alert alert-danger" style="margin: auto; width: 70%" role="alert">
+                    {{ error }}<br>
+                </div>
+            {% endfor %}
+            {{ form.email }}<br>
+            {% for error in form.email.errors %}
+                <div class="alert alert-danger" style="margin: auto; width: 70%" role="alert">
+                    {{ error }}<br>
+                </div>
+            {% endfor %}
+            {{ form.password }}<br>
+            {% for error in form.password.errors %}
+                <div class="alert alert-danger" style="margin: auto; width: 70%" role="alert">
+                    {{ error }}<br>
+                </div>
+            {% endfor %}
+            {{ form.password2 }}<br>
+            {% for error in form.password2.errors %}
+                <div class="alert alert-danger" style="margin: auto; width: 70%" role="alert">
+                    {{ error }}<br>
+                </div>
+            {% endfor %}
+            {{ form.submit() }}
+        </form>
+    </div>
+</div>
+{% endblock %}

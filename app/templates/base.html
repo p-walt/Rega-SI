@@ -1,0 +1,55 @@
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://marvinjs.chemicalize.com/v1/e68ee116a94d4c3f8df6bfc102917299/client-settings.js"></script>
+    <script src="https://marvinjs.chemicalize.com/v1/client.js"></script>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+</head>
+<body>
+<div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom box-shadow">
+    <h5 class="my-0 mr-md-auto font-weight-normal"><a href="{{ url_for('main.home') }}"><img src="{{url_for('static', filename='logo.png')}}" height="38px"></a></h5>
+    <nav class="my-0 mr-md-auto font-weight-normal">
+        <a class="p-2 text-dark" href="{{ url_for('main.home') }}">Home</a>
+        <a class="p-2 text-dark" href="{{ url_for('info.user_guide') }}">User Guide</a>
+        <a class="p-2 text-dark" href="{{ url_for('info.theory') }}">Theory</a>
+        <a class="p-2 text-dark" href="{{ url_for('info.references') }}">References</a>
+        <a class="p-2 text-dark" href="{{ url_for('info.about') }}">About</a>
+        <a class="p-2 text-dark" href="{{ url_for('info.contact') }}">Contact</a>
+        {% if current_user.is_anonymous %}
+        {% else %}
+        <a class="p-2 text-dark" href="{{ url_for('calculations.my_calculations') }}">My Calculations</a>
+        <!--<a class="p-2 text-dark" href="#">Manage Account</a>-->
+        {% endif %}
+    </nav>
+        {% if current_user.is_anonymous %}
+        <a class="btn btn-outline-primary" href="{{ url_for('auth.auth') }}">Login</a>
+        {% else %}
+        <a class="btn btn-outline-primary" href="{{ url_for('auth.auth') }}">Logout</a>
+        {% endif %}
+</div>
+<div class="container text-center">
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <br>
+            {% for message in messages %}
+            <div class="alert alert-danger" style="margin: auto; width: 50%" role="alert">
+                {{ message }}
+            </div>
+            <br>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
+<div id="content-page">
+    {% block content %}
+    {% endblock %}
+</div>
+
+</body>

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="container text-center">
+    <h2>User Guide</h2><br></div>
+<div class="container text-left">
+    Rega is used to determine the regioselectivity for C-H functionalisation reactions, currently focusing on the
+    sulfinate-mediated functionalisation reactions popularised by Phil Baran's group.<br>
+    The program can calculate regioselectivity for either a single compound at a time or a list of compounds. Details on
+    how to use these modes are listed below:<br><br>
+    <h3>Single Compound:</h3><br>
+    When calculating a single compound, the user can either enter a SMILES string for their given compound directly in
+    the box or they can draw the compound they wish to calculate in the molecule editor. One the user has finished
+    drawing the compound in the editor, click the Transfer/Update SMILES and the SMILES string will be pasted in the box.<br>
+    Enter the name of your compound then choose from the drop-down list which functional group you would like to add,
+    either CF<sub>3</sub>, CF<sub>2</sub>H or <sup><i>i</i></sup>Pr. Once each of these boxes has been filled out press submit and your compound will be calculated.<br><br>
+    <h3>Multiple Compounds:</h3><br>
+    For multiple compounds to be calculated at once, they need to be submitted as a .csv file. The file needs to have the following format:<br>
+    The first column contains the compound name, the second contains the SMILES string and the third contains the functional group you want to add.<br>
+    Click the upload file button on the page and select the .csv file with your compounds. Then click submit and your compounds will be calculated.<br><br>
+    <h3>Results page:</h3><br>
+    The results page displays an image of the calculated compound with the possible sites of reaction labelled as
+    numbers. The results table alongside this image details the predicted regioisomeric ratio of the compound. The Activation energy and ratio numbers are displayed and can be interpreted as follows:<br>
+    If site 1 has a ratio value of 4 and site 2 has a ratio value of one, then that tells the user they can expect a 4:1 ratio of product with substitution occuring at site 1 vs site 2.<br><br>
+    <h3>Login and Accounts:</h3><br>
+    While Rega can be used without creating an account, it is recommended. An account allows the user to view their
+    previously calculated compounds and the data generated for them.<br>
+</div>
+{% endblock %}
