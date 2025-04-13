@@ -14,7 +14,7 @@ RUN conda env create -f environment.yml
 # install MOPAC
 RUN conda install conda-forge::mopac
 RUN chmod 777 /app/mopac/
-RUN #chmod +x /app/mopac/MOPAC2016.exe
+# RUN chmod +x /app/mopac/MOPAC2016.exe
 ENV LD_LIBRARY_PATH=/app/mopac
 # Create the environment:
 
@@ -25,9 +25,11 @@ RUN conda install -c conda-forge rdkit
 # install chemcoord
 RUN conda install -c conda-forge pymatgen
 # run pip to install the dependencies of the flask app
-COPY requirements.txt requirements.txt
 RUN pip install -r requirements.txt
+COPY requirements.txt requirements.txt
+
 # The code to run when container is started:
 COPY . .
-EXPOSE 80
-ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "CH_deploy", "python", "app.py"]
+EXPOSE 5000
+# ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "CH_deploy", "python", "app.py"]
+ENTRYPOINT ["conda", "run", "--no-capture-output", "-n", "CH_deploy", "python", "-m", "flask", "run"]

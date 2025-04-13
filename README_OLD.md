@@ -1,9 +1,6 @@
 
 ![rega2](https://github.com/user-attachments/assets/223390c6-206f-4128-aec5-6bf1caf027d2)
 
-## Description
----
-
 Rega is an automated high-throughput transition state location program for the generation of machine learning datasets to predict regioselectivity. While the current state of the Rega is designed for the calculation of C-H functionalisation transition states, its modularity allows for easy adaptation to any system of interest.  
 The basic functionality of Rega is outlined below:
 
@@ -17,38 +14,51 @@ The basic functionality of Rega is outlined below:
 
 In order to run the graphical user interface (GUI), the Python package Flask is used which parses the user’s inputs and feeds the required information into Rega. It is therefore preferred to run Rega through an IDE such as PyCharm with the run configuration set to a Flask server with the startup script set to app/app.py. 
 The python environment required to run Rega is Conda due to its dependency on RDKit. Alongside RDKit, a number of different Python packages are required. An up-to-date list of package requirements are listed below as well as in the requirements.txt file: 
+<!---
+TODO: RA How do you do all these things. You need to explain explicitly how to install this for people who have never used flask. I would also say that you dont need the requirements in both the readme and the requirements.txt. Probably leave in the requirements if i was you. The only thing I would pop in the readme is if anything requires a very specific version or python version. 
+-->
 
-## Install
----
+<!---
+TODO: I would put an example of how to run the code. Maybe with an example input file.
+-->
 
-```bash
-conda env create -f environment.yml
-conda activate CH_deploy
-conda install conda-forge::mopac
-pip install -r requirements.txt
-```
+<!---
+TODO: There is no requirements.txt
+TODO: Docker doesnt work. There is no mopac. 
+-->
 
-## Run
----
+numpy~=1.26.4
 
-To run the app locally using a flask server: 
+psycopg2~=2.8.6
 
-```bash
-python -m flask run
-```
+pony~=0.7.14
 
-The app can then be found through using a browser. It should post a web address to the terminal, but this is usually hosted at: https://127.0.0.1:5000
+lxml~=4.6.2
 
-## Docker
+rdkit~=2024.09.3
 
-### Build image
+wtforms~=3.2.1
 
-```bash
-docker build -t rega:latest .
-```
+flask~=2.3.3
 
-### Run image
+werkzeug~=2.3.8
 
-```bash
-docker run -p 5000:5000 flaskapp:latest
-```
+python-dateutil~=2.9.0.post0
+
+requests~=2.32.3
+
+scipy~=1.14.1
+
+pillow~=11.0.0
+
+pandas~=2.2.2
+
+plotly~=5.24.1
+
+chemcoord~=2.1.2
+
+openbabel~=3.1.1
+
+flask-wtf
+
+flask-login

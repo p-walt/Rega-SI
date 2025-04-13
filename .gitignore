@@ -1,0 +1,4 @@
+app/Calculation_data/
+__pycache__/
+*.cpython-311.pyc
+*.pyc
