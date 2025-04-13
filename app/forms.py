@@ -39,16 +39,16 @@ class RegistrationForm(FlaskForm):  # this class defines the registration form f
     # a user is asked to type the password twice to reduce the risk of a typo
     submit = SubmitField('Register', render_kw={"class": "btn btn-primary"})
 
-    """WTForms takes methods like validate_<field_name> as custom validators 
-    and invokes them in addition to the stock validators. The validators
-    validate_username and validate_email are used to make sure that the 
-    username and email address entered by the user are not already in 
-    the database, so these two methods issue database queries expecting 
-    there will be no results. In the event a result exists, a validation 
-    error is triggered by raising ValidationError. The message included 
-    as the argument in the exception will be the message that will be 
-    displayed next to the field for the user to see."""
-    """The database queries are now using select() from Pony.orm""" # TODO RA: Should be a comment. 
+    # WTForms takes methods like validate_<field_name> as custom validators
+    # and invokes them in addition to the stock validators. The validators
+    # validate_username and validate_email are used to make sure that the
+    # username and email address entered by the user are not already in
+    # the database, so these two methods issue database queries expecting
+    # there will be no results. In the event a result exists, a validation
+    # error is triggered by raising ValidationError. The message included
+    # as the argument in the exception will be the message that will be
+    # displayed next to the field for the user to see."""
+    # The database queries are now using select() from Pony.orm
     def validate_username(self, username):
         user = select(u for u in db.User if username.data == u.username).first()
         if user is not None:

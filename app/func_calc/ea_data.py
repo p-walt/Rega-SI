@@ -16,15 +16,25 @@ from rdkit.Chem.Draw import rdMolDraw2D
 from itertools import chain
 
 
-def read_mopac_output(in_file, out_file, directory):
+def read_mopac_output(in_file: Path, out_file: Path, directory: Path) -> int:
     """
-    Function that reads the .out file from a MOPAC calculation and decides whether it completed successfully or not and
-    writes the TS geometry to a file if yes.
-    @param in_file: File to be read.
-    @param out_file: File name to write to.
-    @param directory: Directory where files can be found.
-    @return: Code of either 1 (completed successfully) or 2 (Failed calculation)
-    """ # TODO RA: types?
+    Reads a MOPAC output file, processes specified sections, and writes processed coordinates
+    to an output XYZ file with additional side processing such as reversing file lines.
+
+    This function extracts atomic coordinates from a MOPAC output file, removes unnecessary
+    data, and rearranges it for creating a formatted XYZ file. It also performs some basic
+    error detection in the MOPAC output file. A temporary file is used during this process,
+    which is deleted after usage.
+
+    :param in_file: The input file path containing MOPAC output.
+    :type in_file: Path
+    :param out_file: The output file path where the processed XYZ file will be written.
+    :type out_file: Path
+    :param directory: The directory path where temporary files will be created and processed.
+    :type directory: Path
+    :return: Status code indicating the success (1) or failure (2) of the operation.
+    :rtype: int
+    """
     # Read am1 output line by line but reverse order and put into new temporary file out_rev.txt.
     with open(in_file) as rf, open(Path(f'{directory}/out_rev.txt'), 'w') as wf:
         for line in reversed(rf.readlines()):

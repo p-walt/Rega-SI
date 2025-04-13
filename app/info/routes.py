@@ -27,5 +27,3 @@ def user_guide():
     return render_template('user_guide.html')
 
 
-
-# TODO RA: Looks fine here. Probably dont need docs or comments for this. 

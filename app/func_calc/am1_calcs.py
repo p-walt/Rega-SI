@@ -24,12 +24,55 @@ else:
     start_path = "/app/Calculation_data"
 
 
-def calculated_previously(starting_dir, canonical_smiles, single=True, multiple=False, calculation_directory=None,
-                          compound_name=None, molecule_sites_dict=None, compounds_dict=None, row=None, radical=None):
+def calculated_previously(starting_dir: str, canonical_smiles: str, single: bool = True,
+                          multiple: bool = False, calculation_directory: str = None,
+                          compound_name: str = None, molecule_sites_dict: dict = None,
+                          compounds_dict: dict = None, row: list = None,
+                          radical: str = None) -> tuple[dict, dict, int, bool, str]:
+    """
+    Checks if a specified compound has been previously calculated under certain conditions and retrieves
+    related data, including molecule site information and computation specifics.
+
+    The function operates in two modes (`single` or `multiple`) as specified by parameters.
+    If a compound's canonical SMILES matches with a record in existing directories and computation details
+    exist, it determines the state of prior calculations (both AM1 and HF, only AM1, or neither). For
+    radical checks and site matching, it also updates dictionaries with retrieved data.
+
+    The method traverses directories, reads files, checks molecular properties, and identifies calculation
+    states based on embedded computation details (`results.json`) and radical matches.
+
+    :param starting_dir: Directory path where compound calculation records are stored.
+    :type starting_dir: str
+    :param canonical_smiles: Canonical SMILES string of the compound.
+    :type canonical_smiles: str
+    :param single: Flag indicating whether processing is for a single compound (default: True).
+    :type single: bool
+    :param multiple: Flag indicating whether processing is for multiple compounds (default: False).
+    :type multiple: bool
+    :param calculation_directory: Directory related to calculations, used in multiple-compound mode.
+    :type calculation_directory: str or None
+    :param compound_name: Name identifier for the compound, used in single-compound mode.
+    :type compound_name: str or None
+    :param molecule_sites_dict: Dictionary mapping molecules (via SMILES) to their reaction sites.
+    :type molecule_sites_dict: dict or None
+    :param compounds_dict: Dictionary storing compound data retrieved from previous calculations.
+    :type compounds_dict: dict or None
+    :param row: Specific row data related to the compound's radical; used in multiple-compound mode.
+    :type row: list or None
+    :param radical: Radical group type associated with the compound; condition for matching.
+    :type radical: str or None
+    :return: A tuple containing:
+        - molecule_sites_dict: Updated with molecule reaction sites, if matched.
+        - compounds_dict: Updated with previous calculation data, if found.
+        - previously_calculated: Status of previous calculations (1: both methods, 3: AM1 only, 2: neither).
+        - compound_yes_rad_no: Boolean indicating whether a compound matches without radical match.
+        - prev_calculated_dir: Directory of the previous matching calculation.
+    :rtype: tuple
+    """
     # Previously Calculated key: 1 = Compound has been previously calculated in both AM1 and HF methods
     #                            2 = Compound has not been previosuly calculated in either AM1 or HF methods.
     #                            3 = Compound has been calculated in AM1 but not in HF method yet. 
-    # TODO RA: Docstring?
+
 
     previously_calculated = 2
     compound_yes_rad_no = False
@@ -303,7 +346,32 @@ def calculated_previously(starting_dir, canonical_smiles, single=True, multiple=
 
 
 def calculate_am1_energies_list(input_file, starting_directory, csv_dir, random_string, hpc_calcs):
-    # TODO RA: Docstring?
+    """
+    Calculates AM1 energies for a list of chemical compounds using provided input parameters.
+
+    The function processes a CSV file containing molecular data, prepares directories for calculations,
+    and evaluates the energy for each molecular species. It checks for previously calculated results
+    to avoid redundant computations and handles various computation requirements. Important intermediate
+    results, including SMILES representation, atomic sites, and molecular geometries, are stored for further use.
+
+    :param input_file: Path to the CSV file containing the chemical data. Each row in the file should represent
+        a compound along with its attributes such as SMILES string and additional properties.
+    :type input_file: str
+    :param starting_directory: Path to the directory where existing calculations are stored. This is used
+        to determine if a calculation has already been performed for a given compound.
+    :type starting_directory: str
+    :param csv_dir: Directory path for storing results and intermediate files for the calculations.
+    :type csv_dir: str
+    :param random_string: Random string identifier used for unique naming of certain calculations or files.
+    :type random_string: str
+    :param hpc_calcs: Flag or identifier indicating if HPC (High-Performance Computing) calculations
+        need to be performed (this depends on the value of the parameter and the implementation logic).
+    :type hpc_calcs: bool
+    :return: A dictionary likely containing computed energy values, additional molecular details, or intermediate
+        processing results. The exact structure depends on the implementation but is derived from the calculations.
+    :rtype: dict
+    """
+
     with open(f'{input_file}') as csv_file:
         compounds_dict = {}
         ts_converged = {}
@@ -865,7 +933,29 @@ def calculate_am1_energies_list(input_file, starting_directory, csv_dir, random_
 
 
 def calculate_am1_energies_single(compound_name, smiles, radical, calc_directory, new_molecule_directory, hpc_calcs):
-    # TODO RA: docstring
+    """
+    Calculates AM1 energies for a single compound, generating necessary directories,
+    files, and data for computational chemistry workflows.
+
+    This function performs a series of operations such as checking whether the
+    calculation has been conducted before, creating directories for new molecules,
+    writing appropriate molecular files, and eventually calculating AM1 energies.
+    Additionally, it handles specific cases based on the presence of radicals,
+    aromatic atoms, and positive charges in the compound. It makes extensive use of
+    third-party tools such as Open Babel and external scripts for energy minimization
+    and data processing.
+
+    :param compound_name: Name of the chemical compound being processed.
+    :param smiles: SMILES (Simplified Molecular Input Line Entry System) string representing the molecule.
+    :param radical: Radical type of the compound (used for specific file generation and calculations).
+    :param calc_directory: Directory where molecule calculation data is stored.
+    :param new_molecule_directory: Directory to store files for a new molecule if not previously calculated.
+    :param hpc_calcs: Boolean indicator for executing calculations on an HPC cluster.
+
+    :return: A tuple containing the dictionary of processed compounds and the aromatic atom list for the molecule.
+    :rtype: tuple
+    """
+
     compounds_dict = {}
     ts_converged = {}
     pos_charged = False

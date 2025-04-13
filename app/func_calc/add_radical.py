@@ -1,4 +1,6 @@
 import os
+from typing import Union
+
 import chemcoord as cc
 import re
 from subprocess import DEVNULL, STDOUT, check_call
@@ -7,21 +9,36 @@ import func_calc.hf_calcs as hf
 from app import pycharm
 from pathlib import Path
 
+
+
 if pycharm == 1: # TODO RA: Is this hard coded? Also is pycharm a variable to identify windows?
     mopac_path = "C:\\Program Files\\MOPAC\\MOPAC2016.exe"
 else:
     mopac_path = '/app/mopac/MOPAC2016.exe'
 
 
-def read_mopac_output(in_file, out_file, directory):
+def read_mopac_output(in_file: Path, out_file: Path, directory: Path) -> int:
     """
-    Function that reads the .out file from a MOPAC calculation and decides whether it completed successfully or not and
-    writes the TS geometry to a file if yes.
-    @param in_file: File to be read.
-    @param out_file: File name to write to.
-    @param directory: Directory where files can be found.
-    @return: Code of either 1 (completed successfully) or 2 (Failed calculation)
-    """ # TODO RA: docstrings should really contain types. 
+    Reads a MOPAC AM1 calculation output file, processes the data to extract Cartesian
+    coordinates, and writes the processed coordinates to an .xyz file.
+
+    The function first reverses the MOPAC output file contents and scans for specific
+    keywords to identify important blocks of data. It processes the data block to extract
+    and format Cartesian coordinates and writes them to the specified output file. Temporary
+    intermediary files are created and removed during this process. The function also handles
+    specific error messages in the input file and provides appropriate return codes
+    accordingly.
+
+    :param in_file: Path to the input MOPAC output file.
+    :type in_file: str
+    :param out_file: Path to the output .xyz file containing formatted Cartesian coordinates.
+    :type out_file: str
+    :param directory: Directory where intermediary file(s) will be created and processed.
+    :type directory: str
+    :return: Status code indicating the success or error during processing. Returns ``1``
+        for successful processing, ``2`` if specific termination errors are encountered.
+    :rtype: int
+    """
     # Read am1 output line by line but reverse order and put into new temporary file out_rev.txt.
     # TODO RA: This feels like making a temp file just to have do some file analysis is abit inefficient... 
 
@@ -91,14 +108,32 @@ def read_mopac_output(in_file, out_file, directory):
     return 1
 
 
-def mopac_distance_checks(geometry, carbon_radical, site):
+def mopac_distance_checks(geometry: Path, carbon_radical: str, site: int) -> bool:
     """
-    Function that checks whether the transition state geometry has a C-C bond length within a typical range.
-    @param geometry: Cartesian coordinates file of transition state.
-    @param carbon_radical: Which Functional group is being investigated.
-    @param site: Which site within the compound is being investigated.
-    @return: Boolean that decides whether the distance is within the typical range.
-    """ # TODO RA: again should have types
+    Checks whether the distance between a specified carbon atom and another site of interest falls
+    within a defined range, for a given geometry file and specific carbon radical type. The function
+    reads atomic coordinates from a geometry file, identifies the atoms based on the given radical
+    type and site index, computes their Euclidean distance, and evaluates whether it lies within
+    the valid range (1.8 to 2.2 units). The function also handles missing geometry files gracefully
+    and ensures compatibility with specific radical types.
+
+    :param geometry: Path to the geometry file containing atomic coordinates. The file is expected
+        to contain atomic data starting from the third line. Each line after the second represents
+        an atom with its properties, including Cartesian coordinates.
+    :type geometry: Path
+    :param carbon_radical: Specifies the type of carbon radical. Valid options include 'cf3', 'cf2h',
+        and 'ipr', each of which determines the specific carbon atom of interest for the distance
+        calculation based on its unique position in the atom list.
+    :type carbon_radical: str
+    :param site: Index of the site of interest in the atomic list of the geometry file. The provided
+        index determines which atom's coordinates are considered for the distance calculation relative
+        to the selected carbon atom.
+    :type site: int
+    :return: `True` if the calculated distance between the specified carbon atom and the target site
+        falls within the range of 1.8 and 2.2 units. Returns `False` if the distance is outside this
+        range or the geometry file cannot be located.
+    :rtype: bool
+    """
     try:
         with open(f'{geometry}', 'r+')as f:
             lin = f.readlines()
@@ -112,7 +147,7 @@ def mopac_distance_checks(geometry, carbon_radical, site):
                 for element in line_elements:
                     line.append(element.split('\t'))
                 flat_list = [item for sublist in line for item in sublist]
-                cart.append(flat_list) # TODO RA: Again... avoid .append
+                cart.append(flat_list)
             if carbon_radical == 'cf3':
                 carbon = cart[-4]
             elif carbon_radical == 'cf2h':
@@ -134,13 +169,28 @@ def mopac_distance_checks(geometry, carbon_radical, site):
         return False
 
 
-def read_mopac_freq(input_file, directory):
-    """return codes: 1 = true transition state
-                     2 = close to transition state with a second small imaginary frequency
-                     3 = 3 or more negative frequencies or large second imaginary frequency, needs further intervention
-                     4 = no imaginary frequency in correct range, needs other intervention""" # TODO RA: This should really have docstring formatting. 
+def read_mopac_freq(input_file: Path, directory: Union[str, Path]) -> int:
+    """
+    Analyzes the frequency data from MOPAC-generated AM1 output files to determine the state of
+    the system based on the number and magnitude of imaginary frequencies. The function reads
+    the input file in reverse order, processes relevant frequency blocks, and identifies if the
+    system is a true transition state, near transition state, or requires further intervention.
+
+    :param input_file: Path to the MOPAC frequency output file.
+    :type input_file: Path
+    :param directory: Directory path where temporary files are created and processed.
+    :type directory: Union[str, Path]
+    :return: Status code indicating the interpretation of the frequency analysis:
+        - 1: True transition state.
+        - 2: Close to transition state with a small second imaginary frequency.
+        - 3: Multiple negative frequencies or a large second imaginary frequency,
+             requiring further intervention.
+        - 4: No imaginary frequency in the correct range, needing other interventions.
+    :rtype: int
+    """
+
     # Read am1 output line by line but reverse order and put into new temporary file out_rev.txt.
-    with open(input_file) as rf, open(Path(f'{directory}/out_rev.txt'), 'w') as wf: # TODO RA: Is this just copying the file??? if not os.system(f'cp {input_file} {Path(f'{directory}/out_rev.txt')}') would be better??
+    with open(input_file) as rf, open(Path(f'{directory}/out_rev.txt'), 'w') as wf:
         for line in rf.readlines():
             wf.write(line)
 
@@ -168,7 +218,7 @@ def read_mopac_freq(input_file, directory):
                 break
     # Remove the lines CARTESIAN COORDINATES and EIGENVALUES and the blank lines before and after the coordinates of
     # interest.
-    os.remove(Path(f'{directory}/out_rev.txt')) # TODO RA: Again... why is this a file? as apposed to just an object. Temp files should be for large data sets that may cause memory issues...
+    os.remove(Path(f'{directory}/out_rev.txt'))
     try:
         b = re.split(' +', a[6])[1:]
         if - 800 <= float(b[0]) <= - 300:
@@ -187,19 +237,31 @@ def read_mopac_freq(input_file, directory):
         return 4
 
 
-def mopac_freq_check(inpu, positively_charged, radical, site, directory, new_mopac_2016=False, multiple=False):
+def mopac_freq_check(inpu: Path, positively_charged: bool, radical: str, site: str, directory: Path,
+                     new_mopac_2016: bool = False, multiple: bool = False) -> bool | None:
     """
-    Function that Decides whether further TS searches are needed by running a frequency calculation on the resultant
-    geometry.
-    @param inpu: File name to work with.
-    @param positively_charged: Whether the compound is a charged species or not.
-    @param radical: Name of the functional group being investigated.
-    @param site: Site that is being investigated.
-    @param directory: Folder where the files are found.
-    @param new_mopac_2016: Whether the new MOPAC 2016 is being used or not.
-    @param multiple: Whether this is a calculation for multiple compounds at once or not.
-    @return: Boolean 
-    """ # TODO RA: types? Also what does the boolean mean?
+    Determines if additional transition state searches are required by executing a frequency
+    calculation on the resulting geometry. This function performs various steps including
+    file manipulations, executing external commands, and interpreting the results. The decision
+    is based on the nature of the compound, its charge state, and the calculation configurations.
+
+    :param inpu: Path to the input geometry file in XYZ format.
+    :type inpu: Path
+    :param positively_charged: Boolean indicating whether the compound is positively charged.
+    :type positively_charged: bool
+    :param radical: Name of the radical functional group analyzed in the transition state calculation.
+    :type radical: str
+    :param site: Specific site under investigation for the transition state analysis.
+    :type site: str
+    :param directory: Parent directory where calculation and temporary files are stored.
+    :type directory: Path
+    :param new_mopac_2016: Boolean flag to use an updated version of MOPAC 2016 if available.
+    :type new_mopac_2016: bool, optional
+    :param multiple: Boolean indicating if multiple compounds are processed simultaneously.
+    :type multiple: bool, optional
+    :return: True if a transition state geometry or condition is determined; False otherwise.
+    :rtype: bool
+    """
     check_call(['obabel', '-ixyz', str(inpu), '-omopin', '-O', Path(f'{directory}/tmp.dat')],
                stdout=DEVNULL, stderr=STDOUT)
     # os.system(f'obabel -ixyz {inpu} -omopin -O tmp.dat > /dev/null 2>&1')
@@ -423,16 +485,24 @@ def mopac_freq_check(inpu, positively_charged, radical, site, directory, new_mop
             return False
 
 
-def check_for_clashes(geometry, query_atom, directory, clash_threshold=1): # TODO RA: directory is not used. 
+def check_for_clashes(geometry: str | Path, query_atom: int, clash_threshold: float = 1) -> bool:
     """
-    Function that checks the built transition state geometry from the template to see whether there are any clashes
-    between the compound of interest and the radical being added to the system. It checks the distance between each
-     radical atom and each atom in the compound structure is no closer than the threshold distance.
-    @param geometry: The input file for the function.
-    @param query_atom: The atom number in system that distance checks need ot performed on.
-    @param directory: The firectory the calculations are being executed in
-    @param clash_threshold: The minimum distance between the atom of interest and other atoms in the system.
-    @return: """ # TODO RA: types?
+    Checks for spatial clashes between atoms within a structure described in a geometry file. The
+    function reads atomic coordinates from the given file, computes the inter-atomic distances
+    between a specified query atom and all other atoms in the structure, and determines whether
+    the distances fall below a specified clash threshold, indicating a potential clash.
+
+    :param geometry: File path to the text geometry file containing atomic coordinates.
+    :type geometry: str
+    :param query_atom: Index of the atom of interest (starting from 1) whose distances to all other
+        atoms will be calculated.
+    :type query_atom: int
+    :param clash_threshold: Threshold distance below which a clash is considered. Default is 1.
+    :type clash_threshold: float, optional
+    :return: Boolean value indicating whether a clash is detected. Returns True if any inter-atomic
+        distance with the query atom is below the given threshold, otherwise False.
+    :rtype: bool
+    """
     clashes = False
 
     with open(f'{geometry}', 'r+') as inp:
@@ -447,7 +517,7 @@ def check_for_clashes(geometry, query_atom, directory, clash_threshold=1): # TOD
             for element in line_elements:
                 line.append(element.split('\t'))
             flat_list = [item for sublist in line for item in sublist]
-            cart.append(flat_list) # TODO RA: .append... 
+            cart.append(flat_list)
     distances = []
     atom_of_concern = cart[query_atom-1]
     for atom_no in cart:
@@ -467,22 +537,33 @@ def check_for_clashes(geometry, query_atom, directory, clash_threshold=1): # TOD
     return clashes
 
 
-def cf3(input_file, xyz, site, directory, positively_charged=False, constrained=False, precise=False, new_mopac_2016=False):
+def cf3(input_file: str, xyz: str, site: int, directory: str, positively_charged: bool = False,
+        constrained: bool = False, precise: bool = False, new_mopac_2016: bool = False) -> None:
     """
-    Function that sets up calculation for adding the CF3 group to the compound of interest in each site from a template
-    AM1 transition state geometry.
-    @param input_file: MOPAC .dat file containing the optimised geometry of the isolated compound of interest with no
-     radical added.
-    @param xyz: Cartesian coordinates of the optimised structure.
-    @param site: Site within the compound to add the radical to, building the template.
-    @param directory: Directory we are reading/writing files.
-    @param positively_charged: Boolean on whether the compound is positively charged or not.
-    @param constrained: Boolean on whether the calculation should be constrained. Failed initial TS searches will be set
-     off again with an initial constrained optimisation and subsequent relaxed TS search.
-    @param precise: Whether the precise keyword should be added to the MOPAC calculation.
-    @param new_mopac_2016: Whether we are running on the new mopac_2016 version or not (alters how the output
-    information is formatted) 
-    """# TODO RA: types?
+    This function modifies a MOPAC input file based on the specified parameters, generates temporary files for
+    transition state geometry, and utilizes Open Babel and MOPAC to handle file conversions and computations. It
+    uses geometrical constraints and connectivity information derived from the provided molecular structure file
+    to ensure proper atom arrangements in the resulting output.
+
+    :param input_file: Path to the MOPAC input file to be modified.
+    :type input_file: str
+    :param xyz: Path to the XYZ format file containing molecular structure information.
+    :type xyz: str
+    :param site: Index of the atom in the molecule serving as the central site for bond connections.
+    :type site: int
+    :param directory: Path to the directory where temporary files and output results will be stored.
+    :type directory: str
+    :param positively_charged: Boolean flag to indicate if the system involves a positively charged molecule or not.
+    :type positively_charged: bool
+    :param constrained: Boolean flag to determine if geometrical constraints should be applied or not.
+    :type constrained: bool
+    :param precise: Boolean flag to enable or disable the use of precise optimizations for calculations.
+    :type precise: bool
+    :param new_mopac_2016: Boolean flag to specify if MOPAC 2016-specific features/settings should be used.
+    :type new_mopac_2016: bool
+    :return: None
+    :rtype: None
+    """
     with open(input_file) as file:
 
         lines = file.readlines()
@@ -563,10 +644,10 @@ def cf3(input_file, xyz, site, directory, positively_charged=False, constrained=
             lin = inp.readlines()
             cartesian = lin[2:]
 
-        check_atoms = [check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-3, directory),
-                       check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-2, directory),
-                       check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-1, directory),
-                       check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian), directory)]
+        check_atoms = [check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 3),
+                       check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 2),
+                       check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 1),
+                       check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian))]
         while any(check_atoms) is True:
             # print('here')
             rotation_spacing = 360/72
@@ -591,10 +672,10 @@ def cf3(input_file, xyz, site, directory, positively_charged=False, constrained=
             with open(Path(f'{directory}/temp_ts.xyz'), 'r+') as inp:
                 lin = inp.readlines()
                 cartesian = lin[2:]
-            check_atoms = [check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-3, directory),
-                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-2, directory),
-                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-1, directory),
-                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian), directory)]
+            check_atoms = [check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 3),
+                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 2),
+                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 1),
+                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian))]
 
     os.remove(Path(f'{directory}/temp_ts.dat'))
     os.remove(Path(f'{directory}/temp_ts.xyz'))
@@ -607,47 +688,45 @@ def cf3(input_file, xyz, site, directory, positively_charged=False, constrained=
     check_call([mopac_path, f'{input_file}'], stdout=DEVNULL, stderr=STDOUT)
 
 
-def cf2h(input_file, xyz, site, directory, positively_charged=False, constrained=False, precise=False, new_mopac_2016=False):
+def cf2h(input_file: str, xyz: str, site: int, directory: str, positively_charged: bool = False,
+         constrained: bool = False, precise: bool = False, new_mopac_2016: bool = False) -> None:
     """
-    Function that sets up calculation for adding the CF3 group to the compound of interest in each site from a template
-    AM1 transition state geometry.
-    @param input_file: MOPAC .dat file containing the optimised geometry of the isolated compound of interest with no
-     radical added.
-    @param xyz: Cartesian coordinates of the optimised structure.
-    @param site: Site within the compound to add the radical to, building the template.
-    @param directory: Directory we are reading/writing files.
-    @param positively_charged: Boolean on whether the compound is positively charged or not.
-    @param constrained: Boolean on whether the calculation should be constrained. Failed initial TS searches will be set
-     off again with an initial constrained optimisation and subsequent relaxed TS search.
-    @param precise: Whether the precise keyword should be added to the MOPAC calculation.
-    @param new_mopac_2016: Whether we are running on the new mopac_2016 version or not (alters how the output
-    information is formatted)
-    """ # TODO RA: types?
+    Modifies a given input file to generate conformational analysis data for a molecule based
+    on specific criteria such as the site of interest, constraints, and charge.
+
+    This function reads molecular data provided in a file and applies modifications to the
+    atomic and molecular properties based on the user-defined parameters. It uses various
+    external tools such as obabel and mopac for processing molecular geometry and performing
+    rotational conformational analysis to minimize clashes.
+
+    :param input_file: Path to the input file containing molecular data.
+    :type input_file: str
+    :param xyz: Path to the XYZ file containing 3D Cartesian coordinates of the molecule.
+    :type xyz: str
+    :param site: The specific atomic site of interest for conformational analysis.
+    :type site: int
+    :param directory: Directory where temporary and output files are saved.
+    :type directory: str
+    :param positively_charged: Indicates whether the molecule is positively charged.
+    :type positively_charged: bool, optional
+    :param constrained: Indicates whether the geometry optimization is constrained.
+    :type constrained: bool, optional
+    :param precise: Enables precise computational methods if set to True.
+    :type precise: bool, optional
+    :param new_mopac_2016: Activates specific MOPAC 2016 features if set to True.
+    :type new_mopac_2016: bool, optional
+    :return: None
+    :rtype: None
+    """
     with open(input_file) as file:
 
         lines = file.readlines()
 
-        if precise is False and positively_charged is False:
-            if new_mopac_2016 is False:
-                lines[0] = 'AM1 TS LET MMOK GEO-OK UHF\n'
-            else:
-                lines[0] = 'AM1 TS LET MMOK GEO-OK DISP UHF\n'
-        elif precise is False and positively_charged is True:
-            if new_mopac_2016 is False:
-                lines[0] = 'AM1 TS LET MMOK GEO-OK CHARGE=+1 UHF\n'
-            else:
-                lines[0] = 'AM1 TS LET MMOK GEO-OK CHARGE=+1 DISP UHF\n'
-        elif precise is True and positively_charged is False:
-            if new_mopac_2016 is False:
-                lines[0] = 'AM1 TS LET MMOK GEO-OK PRECISE UHF\n'
-            else:
-                lines[0] = 'AM1 TS LET MMOK GEO-OK PRECISE DISP UHF\n'
-        elif precise is True and positively_charged is True:
-            if new_mopac_2016 is False:
-                lines[0] = 'AM1 TS LET MMOK GEO-OK PRECISE CHARGE=+1 UHF\n'
-            else:
-                lines[0] = 'AM1 TS LET MMOK GEO-OK PRECISE CHARGE=+1 DISP UHF\n'
-        # TODO RA: This could be a fstring ^^^
+        precise_part = "PRECISE " if precise else ""
+        charge_part = "CHARGE=+1 " if positively_charged else ""
+        disp_part = "DISP " if new_mopac_2016 else ""
+
+        lines[0] = f"AM1 TS LET MMOK GEO-OK {precise_part}{charge_part}{disp_part}UHF\n"
 
         if not constrained:
             const = 1
@@ -703,10 +782,10 @@ def cf2h(input_file, xyz, site, directory, positively_charged=False, constrained
             lin = inp.readlines()
             cartesian = lin[2:]
 
-        check_atoms = [check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-3, directory),
-                       check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-2, directory),
-                       check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-1, directory),
-                       check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian), directory)]
+        check_atoms = [check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 3),
+                       check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 2),
+                       check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 1),
+                       check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian))]
         while any(check_atoms) is True:
             # print('here')
             rotation_spacing = 360/72
@@ -732,10 +811,10 @@ def cf2h(input_file, xyz, site, directory, positively_charged=False, constrained
             with open(Path(f'{directory}/temp_ts.xyz'), 'r+') as inp:
                 lin = inp.readlines()
                 cartesian = lin[2:]
-            check_atoms = [check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-3, directory),
-                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-2, directory),
-                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-1, directory),
-                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian), directory)]
+            check_atoms = [check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 3),
+                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 2),
+                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 1),
+                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian))]
 
     os.remove(Path(f'{directory}/temp_ts.dat'))
     os.remove(Path(f'{directory}/temp_ts.xyz'))
@@ -750,19 +829,39 @@ def cf2h(input_file, xyz, site, directory, positively_charged=False, constrained
 
 def ipr(input_file, xyz, site, directory, positively_charged=False, constrained=False, precise=False, new_mopac_2016=False):
     """
-    Function that sets up calculation for adding the CF3 group to the compound of interest in each site from a template
-    AM1 transition state geometry.
-    @param input_file: MOPAC .dat file containing the optimised geometry of the isolated compound of interest with no
-     radical added.
-    @param xyz: Cartesian coordinates of the optimised structure.
-    @param site: Site within the compound to add the radical to, building the template.
-    @param directory: Directory we are reading/writing files.
-    @param positively_charged: Boolean on whether the compound is positively charged or not.
-    @param constrained: Boolean on whether the calculation should be constrained. Failed initial TS searches will be set
-     off again with an initial constrained optimisation and subsequent relaxed TS search.
-    @param precise: Whether the precise keyword should be added to the MOPAC calculation.
-    @param new_mopac_2016: Whether we are running on the new mopac_2016 version or not (alters how the output
-    information is formatted)
+    Adjusts a given molecular structure input file and generates a temporary structure with
+    new dihedral angle configurations. The function prepares the data for further processing
+    by an external tool (Open Babel).
+
+    This function modifies the first line of the input file based on specific boolean flags
+    (precise, positively_charged, new_mopac_2016). The content of the file is appended
+    with new coordinates calculated using geometric properties of the given compound and
+    expected dihedral angles. The output is saved in a temporary file with further modifications
+    done using Open Babel.
+
+    :param input_file: Path to the input molecular structure file.
+    :type input_file: str or Path
+    :param xyz: Path to the XYZ file containing coordinates of the compound.
+    :type xyz: str or Path
+    :param site: Index of the site atom for geometric calculations.
+    :type site: int
+    :param directory: Path to the directory where generated temporary files will be saved.
+    :type directory: str or Path
+    :param positively_charged: A flag to indicate if the molecule is positively charged.
+                               Defaults to False.
+    :type positively_charged: bool
+    :param constrained: A flag to indicate if the molecule is constrained. Defaults to False.
+    :type constrained: bool
+    :param precise: A flag to indicate if precise calculation mode should be enabled.
+                    Defaults to False.
+    :type precise: bool
+    :param new_mopac_2016: A flag to indicate if the new MOPAC 2016 style should be used.
+                           Defaults to False.
+    :type new_mopac_2016: bool
+    :return: None. The function writes the temporary output to the directory defined by the
+             parameter `directory`.
+    :rtype: None
+
     """
     with open(input_file) as file:
 
@@ -855,16 +954,16 @@ def ipr(input_file, xyz, site, directory, positively_charged=False, constrained=
             lin = inp.readlines()
             cartesian = lin[2:]
 
-        check_atoms = [check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-9, directory),
-                       check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-8, directory),
-                       check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-7, directory),
-                       check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-6, directory),
-                       check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-5, directory),
-                       check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-4, directory),
-                       check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-3, directory),
-                       check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-2, directory),
-                       check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-1, directory),
-                       check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian), directory)]
+        check_atoms = [check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 9),
+                       check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 8),
+                       check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 7),
+                       check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 6),
+                       check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 5),
+                       check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 4),
+                       check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 3),
+                       check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 2),
+                       check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 1),
+                       check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian))]
         while any(check_atoms) is True:
             # print('here')
             rotation_spacing = 360/72
@@ -902,16 +1001,16 @@ def ipr(input_file, xyz, site, directory, positively_charged=False, constrained=
             with open(Path(f'{directory}/temp_ts.xyz'), 'r+') as inp:
                 lin = inp.readlines()
                 cartesian = lin[2:]
-            check_atoms = [check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-9, directory),
-                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-8, directory),
-                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-7, directory),
-                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-6, directory),
-                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-5, directory),
-                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-4, directory),
-                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-3, directory),
-                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-2, directory),
-                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-1, directory),
-                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian), directory)]
+            check_atoms = [check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 9),
+                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 8),
+                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 7),
+                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 6),
+                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 5),
+                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 4),
+                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 3),
+                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 2),
+                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 1),
+                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian))]
 
     os.remove(Path(f'{directory}/temp_ts.dat'))
     os.remove(Path(f'{directory}/temp_ts.xyz'))
@@ -991,10 +1090,10 @@ def cf3_reactant(input_file, xyz, site, directory, positively_charged=False, rea
             lin = inp.readlines()
             cartesian = lin[2:]
 
-        check_atoms = [check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-3, directory),
-                       check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-2, directory),
-                       check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-1, directory),
-                       check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian), directory)]
+        check_atoms = [check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 3),
+                       check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 2),
+                       check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 1),
+                       check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian))]
         while any(check_atoms) is True:
             # print('here')
             rotation_spacing = 360/72
@@ -1020,10 +1119,10 @@ def cf3_reactant(input_file, xyz, site, directory, positively_charged=False, rea
             with open(Path(f'{directory}/temp_ts.xyz'), 'r+') as inp:
                 lin = inp.readlines()
                 cartesian = lin[2:]
-            check_atoms = [check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-3, directory),
-                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-2, directory),
-                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-1, directory),
-                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian), directory)]
+            check_atoms = [check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 3),
+                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 2),
+                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 1),
+                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian))]
 
         os.remove(Path(f'{directory}/temp_ts.dat'))
         os.remove(Path(f'{directory}/temp_ts.xyz'))
@@ -1074,7 +1173,23 @@ def cf3_reactant(input_file, xyz, site, directory, positively_charged=False, rea
 
 
 def cf2h_reactant(input_file, xyz, site, directory, positively_charged=False, reagent_optimised=True, new_mopac_2016=False, multiple=False):
+    """
+    This function modifies and prepares a MOPAC input file to simulate a CF2H reactant. Depending on the provided parameters,
+    it applies necessary optimizations, charges, and dihedral atom configurations while preparing and validating the molecular
+    geometry. If `multiple` is True, it executes a reactive scan to resolve steric clashes. Throughout the process, intermediate
+    files are written to a specified directory and cleaned up after the computation.
 
+    :param input_file: Path to the MOPAC input file for the CF2H reactant.
+    :param xyz: Path to the XYZ file containing the Cartesian coordinates of the initial molecular structure.
+    :param site: Index of the specific atom in the molecule serving as the reaction site.
+    :param directory: Directory to store intermediate and result files during computation.
+    :param positively_charged: Flag indicating whether the reactant is positively charged. Default is False.
+    :param reagent_optimised: Flag determining whether optimization steps are enabled. If True, skips MOPAC and uses existing geometry. Default is True.
+    :param new_mopac_2016: Flag indicating whether to include MOPAC 2016 dispersion parameters in the calculation. Default is False.
+    :param multiple: Flag to indicate whether to perform multiple rotation scans to prevent steric overlaps. Default is False.
+    :return: None
+    :rtype: None
+    """
     if not reagent_optimised:
         with open(input_file) as file:
 
@@ -1156,10 +1271,10 @@ def cf2h_reactant(input_file, xyz, site, directory, positively_charged=False, re
                 lin = inp.readlines()
                 cartesian = lin[2:]
 
-            check_atoms = [check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-3, directory),
-                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-2, directory),
-                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-1, directory),
-                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian), directory)]
+            check_atoms = [check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 3),
+                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 2),
+                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 1),
+                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian))]
             while any(check_atoms) is True:
                 # print('here')
                 rotation_spacing = 360/72
@@ -1184,10 +1299,10 @@ def cf2h_reactant(input_file, xyz, site, directory, positively_charged=False, re
                 with open(Path(f'{directory}/temp_ts.xyz'), 'r+') as inp:
                     lin = inp.readlines()
                     cartesian = lin[2:]
-                check_atoms = [check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-3, directory),
-                               check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-2, directory),
-                               check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-1, directory),
-                               check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian), directory)]
+                check_atoms = [check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 3),
+                               check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 2),
+                               check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 1),
+                               check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian))]
 
         os.remove(Path(f'{directory}/temp_ts.dat'))
         os.remove(Path(f'{directory}/temp_ts.xyz'))
@@ -1238,8 +1353,34 @@ def cf2h_reactant(input_file, xyz, site, directory, positively_charged=False, re
         # os.system('obabel -imopin HF_reagent.dat -oxyz -O HF_reagent.xyz > /dev/null 2>&1')
 
 
-def ipr_reactant(input_file, xyz, site, directory, positively_charged=False, reagent_optimised=True, new_mopac_2016=False, multiple=False):
-    # TODO RA: docstring? 
+def ipr_reactant(input_file: str, xyz: str, site: int, directory: str, positively_charged: bool = False,
+                 reagent_optimised: bool = True, new_mopac_2016: bool = False, multiple: bool = False) -> None:
+    """
+    Processes the reaction information given input parameters, modifies files, computes geometric
+    data, appends new molecular structures, checks for atom clashes during molecular rotations,
+    and generates output files.
+
+    :param input_file: Path to the input file containing initial molecular data.
+    :type input_file: str
+    :param xyz: Path to the .xyz file containing Cartesian coordinates of the molecule.
+    :type xyz: str
+    :param site: The index of the target site in the molecule for modification.
+    :type site: int
+    :param directory: Directory path where temporary and output files are to be stored.
+    :type directory: str
+    :param positively_charged: Indicates if the molecule has a positive charge.
+    :type positively_charged: bool
+    :param reagent_optimised: Indicates if the reagent geometry is already optimised.
+    :type reagent_optimised: bool
+    :param new_mopac_2016: Specifies whether to use MOPAC 2016 features such as dispersion.
+    :type new_mopac_2016: bool
+    :param multiple: Indicates if multiple molecules are being processed.
+    :type multiple: bool
+    :return: None. The function processes files and computes new structures without directly
+        returning any value.
+    :rtype: None
+    """
+
     if not reagent_optimised:
         with open(input_file) as file:
 
@@ -1333,16 +1474,16 @@ def ipr_reactant(input_file, xyz, site, directory, positively_charged=False, rea
                 lin = inp.readlines()
                 cartesian = lin[2:]
 
-            check_atoms = [check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-9, directory),
-                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-8, directory),
-                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-7, directory),
-                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-6, directory),
-                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-5, directory),
-                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-4, directory),
-                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-3, directory),
-                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-2, directory),
-                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-1, directory),
-                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian), directory)]
+            check_atoms = [check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 9),
+                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 8),
+                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 7),
+                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 6),
+                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 5),
+                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 4),
+                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 3),
+                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 2),
+                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 1),
+                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian))]
             while any(check_atoms) is True:
                 # print('here')
                 rotation_spacing = 360/72
@@ -1378,16 +1519,16 @@ def ipr_reactant(input_file, xyz, site, directory, positively_charged=False, rea
                 with open(Path(f'{directory}/temp_ts.xyz'), 'r+') as inp:
                     lin = inp.readlines()
                     cartesian = lin[2:]
-                check_atoms = [check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-9, directory),
-                               check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-8, directory),
-                               check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-7, directory),
-                               check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-6, directory),
-                               check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-5, directory),
-                               check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-4, directory),
-                               check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-3, directory),
-                               check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-2, directory),
-                               check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian)-1, directory),
-                               check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian), directory)] # TODO RA: For loop?
+                check_atoms = [check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 9),
+                               check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 8),
+                               check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 7),
+                               check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 6),
+                               check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 5),
+                               check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 4),
+                               check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 3),
+                               check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 2),
+                               check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 1),
+                               check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian))] # TODO RA: For loop?
 
         os.remove(Path(f'{directory}/temp_ts.dat'))
         os.remove(Path(f'{directory}/temp_ts.xyz'))
@@ -1437,8 +1578,30 @@ def ipr_reactant(input_file, xyz, site, directory, positively_charged=False, rea
                 fil.write(str(Path(f'{fukui_dir}/hf.sdf\n')))
 
 
-def tweak_distance(input_file, radical, directory):
-     # TODO RA: Docstring?
+def tweak_distance(input_file: Path, radical: str, directory: Path) -> None:
+    """
+    Updates bond length in a given molecular structure file, executes external computation, and verifies
+    the output. Handles specific adjustments based on the given radical type and retries with modified
+    parameters if initial computation does not succeed.
+
+    The function performs the following steps:
+    - Deletes a specified output file if it exists.
+    - Reads the input file and updates bond length based on the specified radical.
+    - Writes the modified input back to the file.
+    - Executes an external tool via subprocess.
+    - Verifies if the desired output file is generated, retrying with altered parameters if needed.
+    - Prints an error message if the computation does not converge.
+
+    :param input_file: The file path to the molecular structure input file.
+    :type input_file: Path
+    :param radical: The type of radical (e.g., 'cf3', 'cf2h', 'ipr') used to determine the bond adjustment.
+    :type radical: str
+    :param directory: The working directory containing output and temporary computation files.
+    :type directory: Path
+    :return: None
+    :rtype: None
+    """
+
     os.remove(Path(f'{directory}/ts2.out'))
     with open(f'{input_file}', 'r+') as relaxed:
         lines = relaxed.readlines()

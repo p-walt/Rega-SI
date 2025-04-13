@@ -17,7 +17,17 @@ from datetime import datetime
 @main_bp.route('/home', methods=['GET', 'POST'])
 @main_bp.route('/', methods=['GET', 'POST'])
 def home():
-    # TODO RA: docstring?
+    """
+    Handles the home page, accessible via the root endpoints. This view function
+    supports both GET and POST HTTP methods. On a POST request, it redirects the
+    user to appropriate routes based on the selection input. If the user selects
+    "Input Molecule", they are redirected to a single molecule input form route.
+    If the user selects "Upload File", they are redirected to a multiple molecules
+    upload file route. On a GET request, it renders the homepage template.
+
+    :return: A rendered homepage template for GET requests or a redirect response for valid POST requests.
+    :rtype: str or flask.Response
+    """
     if request.method == "POST":
         if request.form["choice"] == "Input Molecule":
             return redirect(url_for("main.single"))
@@ -28,7 +38,55 @@ def home():
 
 @main_bp.route('/single', methods=['GET', 'POST'])
 def single():
-    # TODO RA: Docstring?
+    """
+    Handles interactions for submitting a single molecule job in a web-based application. Provides UI for
+    input fields where users can enter molecule details such as name, SMILES string, and radical type,
+    validates the input, calculates molecule properties, and generates results for rendering on success.
+    Implements GET and POST HTTP methods. If POST and form submission are successful, redirects to display
+    detailed computation results.
+
+    :param pycharm: Indicator to determine the root directory for 'Calculation_data'.
+    :type pycharm: int
+    :param start: The directory path where calculated data will be stored.
+    :type start: Path
+    :param errors: List of validation error messages, if any occurred during form submission.
+    :type errors: list
+    :param page: An instance of the molecule submission form.
+    :type page: SubmitForm
+    :param ran_string: A unique identifier for storing session data and results.
+    :type ran_string: str
+    :param molecule_dir: Directory path where computation files for the molecule will be stored.
+    :type molecule_dir: str
+    :param results_dict: Dictionary containing computation results for submitted molecules.
+    :type results_dict: dict
+    :param molecule_sites: List of reaction sites on the molecule being calculated.
+    :type molecule_sites: list
+    :param compounds: Keys representing individual compound results from `results_dict`.
+    :type compounds: Iterable
+    :param row_headers: A list of header fields for result rows derived from the results_dict.
+    :type row_headers: list
+    :param compound_eas: Dictionary mapping each compound to its activation energies across sites.
+    :type compound_eas: dict
+    :param compound_sites: Dictionary mapping each compound to its respective molecule sites.
+    :type compound_sites: dict
+    :param compound_ratios: Dictionary storing computed molecular reaction ratios across active sites.
+    :type compound_ratios: dict
+    :param radicals: Mapping of each compound to the radical provided for computations.
+    :type radicals: dict
+    :param image_data: Encoded string data representing the visual molecule depiction.
+    :type image_data: str
+    :param dateTimeObj: The current timestamp used for user-specific logging.
+    :type dateTimeObj: datetime
+
+    :raises ValidationError: If the molecule data fields (e.g., name, SMILES, radical type) are not provided
+                              or contain invalid data.
+    :raises SizeLimitError: If the molecule exceeds the maximum allowable size for calculations.
+    :raises InvalidSMILES: When the provided SMILES string fails syntax or structural validation checks.
+
+    :return: On successful form submission and computations, renders the result page, else renders the input form
+             page with error messages.
+    :rtype: werkzeug.wrappers.response.Response
+    """
     if pycharm == 1:
         if "Calculation_data" not in os.getcwd():
             start = Path.cwd() / 'Calculation_data'
@@ -105,7 +163,23 @@ def single():
 
 @main_bp.route('/multiple', methods=['GET', 'POST'])
 def multiple():
-    # TODO RA: Docstring?
+    """
+    Handles the logic for the '/multiple' route in the application. This endpoint allows users to upload a
+    file containing molecular data and validate, process, and compute results based on the molecules provided.
+    The calculations may vary depending on the use of HPC mode or standard AM1 calculations.
+
+    The function checks for the validity of the uploaded file, processes it for further computations, and
+    provides the user with results. It is sensitive to the format and size of the uploaded file, ensuring
+    strict validity checks and error feedback. Successful submissions trigger AM1 energy calculations for
+    molecules in the file. The results from the computations, alongside supplementary visualizations,
+    are displayed to the user.
+
+    :error: Renders error messages for various validation failures such as an invalid file type, excessive
+            molecule size, or invalid SMILES strings in the input file.
+    :param: None
+    :returns: HTML template with results, visualized data, or errors for end users.
+    :rtype: str
+    """
     if pycharm == 1:
         if "Calculation_data" not in os.getcwd():
             start = Path.cwd() / 'ML-for-CH' / 'app' / 'Calculation_data'
@@ -197,7 +271,24 @@ def multiple():
 
 @main_bp.route('/download_results', methods=['GET', 'POST'])
 def download_results():
-     # TODO RA: Docstring?
+    """
+    Handles the download of calculation result files by serving them as an attachment
+    to the client. The file is identified through a random name provided as a query
+    parameter, and its path is determined based on the application's directory
+    structure and execution context.
+
+    :param random_name: Query parameter received from the client, representing
+                        the random name of the file to be downloaded.
+    :type random_name: str
+
+    :raises FileNotFoundError: If the specified file does not exist in the
+                               constructed file path.
+    :raises TypeError: If the provided random_name is of an invalid type.
+
+    :return: A response object that serves the specified file as an attachment to
+             the client.
+    :rtype: werkzeug.wrappers.Response
+    """
     if pycharm == 1:
         if "Calculation_data" not in os.getcwd():
             start = Path.cwd() / 'ML-for-CH' / 'app' / 'Calculation_data'

@@ -16,7 +16,20 @@ from pathlib import Path
 @calculations_bp.route('/my_calculations', methods=['GET', 'POST'])
 @login_required
 def my_calculations():
-    # TODO RA: Docstring
+    """
+    Handles the '/my_calculations' route by fetching and processing user-specific calculation
+    data from the database. It processes calculations by adjusting string formats for properties
+    like smiles, radical, and name to ensure appropriate lengths, appending ellipses if
+    truncated. Additionally, it determines the mode of the calculation based on the length
+    of the 'smiles' list. Finally, it sorts the processed calculations by date_time and
+    renders the 'my_calculations.html' template with the processed data.
+
+    :param db: Database object used to fetch data from the Calculation table.
+    :param current_user: The user object representing the currently logged-in user.
+    :return: Rendered template for the 'my_calculations.html' page with the processed data.
+    :rtype: werkzeug.wrappers.Response
+    """
+
     calcs = []
     for calc in select(u for u in db.Calculation if current_user.email == u.email):
         calc = calc.to_dict()
@@ -41,8 +54,27 @@ def my_calculations():
 
 @calculations_bp.route('/reload/<data>', methods=['GET', 'POST'])
 @login_required
-def reload(data):
-    # TODO RA: Docstring
+def reload(data: str) -> str:
+    """
+    Reloads and calculates AM1 (Austin Model 1) energies for chemical compounds based on
+    provided input data, either for a single compound or a list of compounds.
+
+    :param data: The serialized string containing parameter values required for AM1
+                 calculations. Includes mode ("single"/"multiple"), chemical
+                 compound's name, smiles data, radical specification, and
+                 additional data depending on the mode.
+    :type data: str
+
+    :return: A rendered HTML template with calculation results including:
+             - AM1 activation energies for compounds.
+             - Calculated ratios for given radicals and reaction sites.
+             - Visual image data for the molecules.
+    :rtype: str
+
+    :raises ValueError: If the input data cannot be parsed or analyzed correctly.
+    :raises FileNotFoundError: When expected directories or files do not exist within
+                                the application folder structure.
+    """
 
     data = ast.literal_eval(data)
     if pycharm == 1:

@@ -5,20 +5,35 @@ from subprocess import DEVNULL, STDOUT, check_call
 import subprocess
 import re
 import sys
+from typing import Optional
 
-# TODO RA: hard coded. 
-PyReact_path = Path(r'C:\\Users\\pcypw1\\Documents\\PhD\\GitHub\\ML-for-CH\\app\\PyReact_Scripts\\PyReact.py')
+# Define PyReact path dynamically or fall back to default if the environment variable is not set
+PyReact_path = Path(os.getenv("PYREACT_PATH",
+                              r'C:\\Users\\pcypw1\\Documents\\PhD\\GitHub\\ML-for-CH\\app\\PyReact_Scripts\\PyReact.py'))
 
 
-def generate_hf_geometry(directory, radical, failed=False, multiple=False):
-    """ Function that generates the HF starting geometry using the AM1 TS as a starting point. C-C bond length is
-    increased compared to the AM1 geometry to prevent convergence to product since it is too short in AM1.
-    @param directory: The full path of the directory the AM1 output file can be found.
-    @param radical: The radical being added to the compound (string of either cf3, cf2h or ipr).
-    @param failed: True/False boolean that tells the function AM1 searches failed or not. If so it will look for
-    different AM1 output files and find the last valid geometry that could be used as a HF starting point.
-    @param multiple: Whether this is a calculation for multiple compounds at once or not.
-    @return: """ # TODO RA: types?
+def generate_hf_geometry(directory: Path, radical: str, failed: bool = False, multiple: bool = False) -> Optional[int]:
+    """
+    Generate Hartree-Fock optimized geometry files (HF) based on input data and directory structure.
+    The function processes output files from prior calculations or optimization steps,
+    extracts the required Cartesian coordinates, modifies them based on provided
+    parameters, and creates various formatted geometry files for downstream tools.
+
+    :param directory: The directory containing result files for Hartree-Fock geometry processing.
+    :type directory: Path
+    :param radical: A string defining the radical type (e.g., 'cf3', 'cf2h', 'ipr') to adjust
+        specific atom coordinates in the generated file.
+    :type radical: str
+    :param failed: Flag indicating whether the optimization runs had failed or not.
+        If True, alternative file processing paths will be used.
+    :type failed: bool
+    :param multiple: Flag to determine whether multiple file entries in the hf_jobs.txt
+        should correspond to the processing directory.
+    :type multiple: bool
+    :return: An integer indicating the termination status or None for successful completion.
+        Returns 2 if specific termination messages or errors are encountered within processed files.
+    :rtype: Optional[int]
+    """
     if failed is False:
 
         if os.path.isfile(Path(f'{directory}/ts2.out')):
@@ -254,13 +269,26 @@ def run_pyreact(command): # Could you not make pyReact a function and then just 
         raise Exception("Timeout")
 
 
-def check_hf_geometry(geometry, carbon_radical, site):
-    """Function that decides whether each TS geometry is within an expected range.
-    @param geometry: The .xyz file from the HF transition state.
-    @param carbon_radical: Which functional group is being added to the system
-    @param site: Which site within the molecule is being checked.
-    @return: Boolean that states whether C-C bond length is within a typical range.
-    """ # TODO RA: types?
+def check_hf_geometry(geometry: str, carbon_radical: str, site: int) -> bool:
+    """
+    Evaluates whether a given radical in a geometry file maintains a valid bond distance 
+    with a specified site of interest. The function reads atomic coordinates from a file, 
+    extracts the specified radical and site, and calculates the distance between them. 
+    The calculation determines if the distance resides within an acceptable range 
+    of bond lengths.
+
+    :param geometry: Path to the file containing the atomic geometry information.
+    :type geometry: str
+    :param carbon_radical: Type of the carbon radical in the molecule. It can be cf3, 
+        cf2h, or ipr.
+    :type carbon_radical: str
+    :param site: Index of the site of interest (1-based index) whose distance from 
+        the carbon radical is to be calculated.
+    :type site: int
+    :return: True if the bond distance between the specified radical and site 
+        lies between 1.8 and 2.2 units, otherwise False.
+    :rtype: bool
+    """
     with open(f'{geometry}', 'r+')as f:
         lin = f.readlines()
         coords = lin[2:]
@@ -293,13 +321,29 @@ def check_hf_geometry(geometry, carbon_radical, site):
             return False
 
 
-def hf_freq_check(freq_dict, nwchem):
-    """ Function that decides whether the frequencies from the HF output file correspond to a true transition state. If
-    not then the compounds are resubmitted for a second search.
-    @param freq_dict: The dictionary of file paths as the key and the corresponding frequencies from the output file as
-     the value.
-    @param nwchem: Boolean on whether the NWChem software package is being used.
-    @return: # TODO RA: types?
+def hf_freq_check(freq_dict: dict, nwchem: bool) -> None:
+    """
+    Analyzes frequency data from Hartree-Fock calculations and determines necessary 
+    actions such as geometry regeneration or pyreact simulation execution. 
+
+    This function inspects a dictionary of frequency data and determines whether 
+    to regenerate geometries or execute pyreact simulations based on a set of 
+    conditions. It handles transition states, near-transition states, and failures, 
+    and builds a list of files that need to be processed further. For certain cases, 
+    this function also invokes external geometry regeneration routines or pyreact 
+    simulations based on the computational suite used.
+
+    :param freq_dict: A dictionary where keys are file paths (str) and values are lists 
+        of frequency and energy values per respective file. The analysis is performed 
+        based on these numerical values and file path properties.
+    :type freq_dict: dict
+    :param nwchem: Indicates whether the computations utilize the NWChem computational suite. 
+        This boolean flag adapts the pyreact call based on the specific software being used.
+    :type nwchem: bool
+    :return: This function does not return any result. Instead, it indirectly operates by printing 
+        log/diagnostic information, modifying file paths, and invoking geometry regeneration 
+        or simulation commands as required.
+    :rtype: None
     """
     redo_list = []
     print(freq_dict)
@@ -348,20 +392,33 @@ def hf_freq_check(freq_dict, nwchem):
             redo_geometry_generator(file, nwchem, transition_state=False)
             file_list.append(str(Path("/")).join(file.split(str(Path("/")))[:-1]))
         pyreact_files = " ".join([str(Path(f'{i}')) + str(Path('/hf2.sdf')) for i in file_list])
-        if nwchem is False: # TODO RA: Number of processors being hardcoded could be problematic. what if 8 CPU's not available? 
-            run_pyreact(f'-d a --mult 2 --FC --NoEigen -F UHF --nProc 8 --TS --Rega --array {pyreact_files}', pyreact_files.split(
-                ' '), first_run=False)
+        if nwchem is False:
+            run_pyreact(f'-d a --mult 2 --FC --NoEigen -F UHF --nProc 8 --TS --Rega --array {pyreact_files}',
+                        pyreact_files.split(' '), first_run=False)
         else:
-            run_pyreact(f'-d a --nwchem --mult 2 --FC --NoEigen -F UHF --nProc 8 --TS --Rega --array {pyreact_files}', pyreact_files.split(' '), first_run=False)
+            run_pyreact(f'-d a --nwchem --mult 2 --FC --NoEigen -F UHF --nProc 8 --TS --Rega --array '
+                        f'{pyreact_files}', pyreact_files.split(' '), first_run=False)
 
 
-def redo_geometry_generator(out_file, nwchem, transition_state=False):
-    """Function that creates either the finished transition state geometry or the geoemtry for the next round of HF TS
-    search from the HF output file.
-    @param out_file: The full file path of the HF output file.
-    @param nwchem: Boolean on whether the NWChem software package is being used.
-    @param transition_state: Boolean on whether the geometry should be labelled as the true HF transition state or a
-    starting point for the second round of HF TS searching with tightened convergence criteria."""# TODO RA: types?
+def redo_geometry_generator(out_file: str, nwchem: bool, transition_state: bool = False) -> None:
+    """
+    Function that processes the results of a Hartree-Fock (HF) computational chemistry
+    calculation and generates geometry files for either the finalized transition state
+    geometry or the next iteration of HF transition state search. The source file is
+    analyzed based on the specified computational chemistry tool, and output files
+    are created in specific formats.
+
+    :param out_file: The full path to the file containing the HF calculation output data.
+    :type out_file: str
+    :param nwchem: Boolean value indicating whether the NWChem software package was used for the calculations.
+    :type nwchem: bool
+    :param transition_state: Specifies if the geometry output should represent the final Hartree-Fock
+        (true) transition state or the starting point for the next stage of HF TS searching.
+        Default value is False.
+    :type transition_state: bool
+    :return: This function does not return any value.
+    :rtype: None
+    """
     if nwchem is False:
         atom_dict = {'1': 'H', '6': 'C', '7': 'N', '8': 'O', '9': 'F', '14': 'Si', '15': 'P', '16': 'S', '17': 'Cl',
                      '35': 'Br',
@@ -369,7 +426,6 @@ def redo_geometry_generator(out_file, nwchem, transition_state=False):
         with open(f'{str(Path("/")).join(out_file.split(str(Path("/")))[:-1])}{str(Path("/hfoutp.out"))}', 'r') as rf, open(f'{str(Path("/")).join(out_file.split(str(Path("/")))[:-1])}{str(Path("/out_rev.txt"))}', 'w') as wf:
             for line in reversed(rf.readlines()):
                 wf.write(line)
-        # TODO RA: Again why make a new file to reverse the list? 
         with open(f'{str(Path("/")).join(out_file.split(str(Path("/")))[:-1])}{str(Path("/out_rev.txt"))}', 'r') as file:
             a = []
             coordinates = []

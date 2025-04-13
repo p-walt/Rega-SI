@@ -12,7 +12,21 @@ import chemcoord as cc
 
 
 def findlargest(arr):
-    # TODO RA: docs?
+    """
+    Find the second largest element in a list of integers.
+
+    This function iterates through the input array twice to determine the largest
+    and second largest integers. The function assumes that the input list contains
+    at least two distinct elements. The first pass finds the largest number, while
+    the second pass identifies the second largest number, ensuring it is not equal
+    to the largest.
+
+    :param arr: A list of integers from which the second largest value is to be
+        found.
+    :type arr: list[int]
+    :return: The second largest integer in the list.
+    :rtype: int
+    """
     secondlargest = arr[0]
     largest = arr[0]
     for i in range(len(arr)):
