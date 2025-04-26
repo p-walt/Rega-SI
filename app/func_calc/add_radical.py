@@ -9,9 +9,174 @@ import func_calc.hf_calcs as hf
 from app import pycharm
 from pathlib import Path
 
+RADICAL_PARAMS = {
+    # CF3 parameters
+    'cf3': {
+        # Bond lengths
+        'c_c_dist': 2.000000,  # C-C bond length
+        'c_f1_dist': 1.351000,  # C-F1 bond length
+        'c_f2_dist': 1.350000,  # C-F2 bond length
+        'c_f3_dist': 1.345000,  # C-F3 bond length
+
+        # Bond angles
+        'c_c_angle': 101.000000,  # C-C-X angle
+        'c_f1_angle': 107.100000,  # C-F1 angle
+        'c_f2_angle': 107.800000,  # C-F2 angle
+        'c_f3_angle': 114.600000,  # C-F3 angle
+
+        # Dihedral angles
+        'c_dihed': 180.0,  # Central carbon dihedral angle
+        'f1_dihed': 180.0,  # First fluorine dihedral angle
+        'f2_dihed': 60.0,  # Second fluorine dihedral angle
+        'f3_dihed': -60.0,  # Third fluorine dihedral angle
+    },
+
+    # CF3 reactant parameters
+    'cf3_reactant': {
+        # Bond lengths
+        'c_c_dist': 12.000000,  # C-C bond length (extended for reactant)
+        'c_f1_dist': 1.351000,  # C-F1 bond length
+        'c_f2_dist': 1.350000,  # C-F2 bond length
+        'c_f3_dist': 1.345000,  # C-F3 bond length
+
+        # Bond angles
+        'c_c_angle': 101.000000,  # C-C-X angle
+        'c_f1_angle': 107.100000,  # C-F1 angle
+        'c_f2_angle': 107.800000,  # C-F2 angle
+        'c_f3_angle': 114.600000,  # C-F3 angle
+
+        # Dihedral angles
+        'c_dihed': 180.0,  # Central carbon dihedral angle
+        'f1_dihed': 180.0,  # First fluorine dihedral angle
+        'f2_dihed': 60.0,  # Second fluorine dihedral angle
+        'f3_dihed': -60.0,  # Third fluorine dihedral angle
+    },
+
+    # CF2H parameters
+    'cf2h': {
+        # Bond lengths
+        'c_c_dist': 2.000000,  # C-C bond length
+        'c_f1_dist': 1.351000,  # C-F1 bond length
+        'c_f2_dist': 1.350000,  # C-F2 bond length
+        'c_h_dist': 1.090000,  # C-H bond length
+
+        # Bond angles
+        'c_c_angle': 101.000000,  # C-C-X angle
+        'c_f1_angle': 107.100000,  # C-F1 angle
+        'c_f2_angle': 107.800000,  # C-F2 angle
+        'c_h_angle': 111.200000,  # C-H angle
+
+        # Dihedral angles
+        'c_dihed': 180.0,  # Central carbon dihedral angle
+        'f1_dihed': 120.0,  # First fluorine dihedral angle
+        'f2_dihed': -120.0,  # Second fluorine dihedral angle
+        'h_dihed': 0.0,  # Hydrogen dihedral angle
+    },
+
+    # CF2H reactant parameters
+    'cf2h_reactant': {
+        # Bond lengths
+        'c_c_dist': 12.000000,  # C-C bond length (extended for reactant)
+        'c_f1_dist': 1.351000,  # C-F1 bond length
+        'c_f2_dist': 1.350000,  # C-F2 bond length
+        'c_h_dist': 1.090000,  # C-H bond length
+
+        # Bond angles
+        'c_c_angle': 101.000000,  # C-C-X angle
+        'c_f1_angle': 107.100000,  # C-F1 angle
+        'c_f2_angle': 107.800000,  # C-F2 angle
+        'c_h_angle': 111.200000,  # C-H angle
+
+        # Dihedral angles
+        'c_dihed': 180.0,  # Central carbon dihedral angle
+        'f1_dihed': 120.0,  # First fluorine dihedral angle
+        'f2_dihed': -120.0,  # Second fluorine dihedral angle
+        'h_dihed': 0.0,  # Hydrogen dihedral angle
+    },
+
+    # Isopropyl (IPR) parameters
+    'ipr': {
+        # Bond lengths
+        'c_c_dist': 2.021139,  # C-C bond length
+        'c1_c_dist': 1.482068,  # C1-C bond length (first methyl)
+        'c2_c_dist': 1.481423,  # C2-C bond length (second methyl)
+        'h_c_dist': 1.103400,  # H-C bond length (central carbon hydrogen)
+        'h1_c1_dist': 1.117064,  # H1-C1 bond length (first methyl)
+        'h2_c1_dist': 1.120711,  # H2-C1 bond length (first methyl)
+        'h3_c1_dist': 1.118015,  # H3-C1 bond length (first methyl)
+        'h4_c2_dist': 1.117322,  # H4-C2 bond length (second methyl)
+        'h5_c2_dist': 1.118059,  # H5-C2 bond length (second methyl)
+        'h6_c2_dist': 1.120507,  # H6-C2 bond length (second methyl)
+
+        # Bond angles
+        'c_c_angle': 100.078262,  # Central C-C-X angle
+        'c1_c_angle': 104.004890,  # C1-C-X angle (first methyl)
+        'c2_c_angle': 104.119367,  # C2-C-X angle (second methyl)
+        'h_c_angle': 97.795054,  # H-C-X angle (central carbon hydrogen)
+        'h1_c1_angle': 111.484379,  # H1-C1-X angle (first methyl)
+        'h2_c1_angle': 109.826665,  # H2-C1-X angle (first methyl)
+        'h3_c1_angle': 110.943566,  # H3-C1-X angle (first methyl)
+        'h4_c2_angle': 111.323645,  # H4-C2-X angle (second methyl)
+        'h5_c2_angle': 111.047346,  # H5-C2-X angle (second methyl)
+        'h6_c2_angle': 109.884160,  # H6-C2-X angle (second methyl)
+
+        # Dihedral angles
+        'c1_dihed': 180.0,  # Central carbon dihedral angle
+        'c2_dihed': 60.0,  # First methyl carbon dihedral angle
+        'c3_dihed': -60.0,  # Second methyl carbon dihedral angle
+        'h1_dihed': 180.0,  # Central carbon hydrogen dihedral angle
+        'h2_dihed': 60.0,  # First methyl first H dihedral angle
+        'h3_dihed': -60.0,  # First methyl second H dihedral angle
+        'h4_dihed': 180.0,  # First methyl third H dihedral angle
+        'h5_dihed': 60.0,  # Second methyl first H dihedral angle
+        'h6_dihed': -60.0,  # Second methyl second H dihedral angle
+        'h7_dihed': 180.0,  # Second methyl third H dihedral angle
+    },
+
+    # Isopropyl (IPR) reactant parameters
+    'ipr_reactant': {
+        # Bond lengths
+        'c_c_dist': 12.021139,  # C-C bond length (extended for reactant)
+        'c1_c_dist': 1.482068,  # C1-C bond length (first methyl)
+        'c2_c_dist': 1.481423,  # C2-C bond length (second methyl)
+        'h_c_dist': 1.103400,  # H-C bond length (central carbon hydrogen)
+        'h1_c1_dist': 1.117064,  # H1-C1 bond length (first methyl)
+        'h2_c1_dist': 1.120711,  # H2-C1 bond length (first methyl)
+        'h3_c1_dist': 1.118015,  # H3-C1 bond length (first methyl)
+        'h4_c2_dist': 1.117322,  # H4-C2 bond length (second methyl)
+        'h5_c2_dist': 1.118059,  # H5-C2 bond length (second methyl)
+        'h6_c2_dist': 1.120507,  # H6-C2 bond length (second methyl)
+
+        # Bond angles
+        'c_c_angle': 100.078262,  # Central C-C-X angle
+        'c1_c_angle': 104.004890,  # C1-C-X angle (first methyl)
+        'c2_c_angle': 104.119367,  # C2-C-X angle (second methyl)
+        'h_c_angle': 97.795054,  # H-C-X angle (central carbon hydrogen)
+        'h1_c1_angle': 111.484379,  # H1-C1-X angle (first methyl)
+        'h2_c1_angle': 109.826665,  # H2-C1-X angle (first methyl)
+        'h3_c1_angle': 110.943566,  # H3-C1-X angle (first methyl)
+        'h4_c2_angle': 111.323645,  # H4-C2-X angle (second methyl)
+        'h5_c2_angle': 111.047346,  # H5-C2-X angle (second methyl)
+        'h6_c2_angle': 109.884160,  # H6-C2-X angle (second methyl)
+
+        # Dihedral angles
+        'c1_dihed': 180.0,  # Central carbon dihedral angle
+        'c2_dihed': 60.0,  # First methyl carbon dihedral angle
+        'c3_dihed': -60.0,  # Second methyl carbon dihedral angle
+        'h1_dihed': 180.0,  # Central carbon hydrogen dihedral angle
+        'h2_dihed': 60.0,  # First methyl first H dihedral angle
+        'h3_dihed': -60.0,  # First methyl second H dihedral angle
+        'h4_dihed': 180.0,  # First methyl third H dihedral angle
+        'h5_dihed': 60.0,  # Second methyl first H dihedral angle
+        'h6_dihed': -60.0,  # Second methyl second H dihedral angle
+        'h7_dihed': 180.0,  # Second methyl third H dihedral angle
+    }
+}
 
 
-if pycharm == 1: # TODO RA: Is this hard coded? Also is pycharm a variable to identify windows?
+
+
+if pycharm == 1:
     mopac_path = "C:\\Program Files\\MOPAC\\MOPAC2016.exe"
 else:
     mopac_path = 'mopac'
@@ -39,8 +204,6 @@ def read_mopac_output(in_file: Path, out_file: Path, directory: Path) -> int:
         for successful processing, ``2`` if specific termination errors are encountered.
     :rtype: int
     """
-    # Read am1 output line by line but reverse order and put into new temporary file out_rev.txt.
-    # TODO RA: This feels like making a temp file just to have do some file analysis is abit inefficient... 
 
     with open(in_file) as rf, open(Path(f'{directory}/out_rev.txt'), 'w') as wf:
         for line in reversed(rf.readlines()):
@@ -97,14 +260,14 @@ def read_mopac_output(in_file: Path, out_file: Path, directory: Path) -> int:
             del coordinate[0]
 
         coordinate1 = '\t'.join(map(str, coordinate))
-        coordinates.append(coordinate1) # TODO RA: .append is bad... incredibly slow. try: Nat = len(trimmed); coordinates = [None]*Nat; coordinates[i] = coordinate1 (I know this doesnt actually work but something along these lines would be better)
+        coordinates.append(coordinate1)
     system_size = len(trimmed)
     # Write AM1 optimised coordinates to an xyz file
     with open(out_file, 'w+') as xyz:
         xyz.write(str(system_size) + '\n\n')
         for i in coordinates:
             xyz.write(str(i) + '\n')
-    os.remove(Path(f'{directory}/out_rev.txt')) # TODO RA: I dont think this being a file is useful... just read it into a list and then delete the list
+    os.remove(Path(f'{directory}/out_rev.txt'))
     return 1
 
 
@@ -231,6 +394,8 @@ def read_mopac_freq(input_file: Path, directory: Union[str, Path]) -> int:
                     return 3
             elif - 600 <= float(b[1]) <= - 101.1:
                 return 3
+            else:
+                return 4
         else:
             return 4
     except IndexError:
@@ -376,6 +541,7 @@ def mopac_freq_check(inpu: Path, positively_charged: bool, radical: str, site: s
                         os.remove(file)
                     # os.system('rm ./tmp.*')
                     return False
+                return None
             else:
                 print('Fail')
                 hf.generate_hf_geometry(Path(f'{directory}'), radical, failed=True, multiple=multiple)
@@ -467,6 +633,7 @@ def mopac_freq_check(inpu: Path, positively_charged: bool, radical: str, site: s
                         os.remove(file)
                     # os.system('rm ./tmp.*')
                     return False
+                return None
             else:
                 print('Fail')
                 hf.generate_hf_geometry(Path(f'{directory}'), radical, failed=True, multiple=multiple)
@@ -483,6 +650,7 @@ def mopac_freq_check(inpu: Path, positively_charged: bool, radical: str, site: s
                 os.remove(file)
             # os.system('rm ./tmp.*')
             return False
+    return None
 
 
 def check_for_clashes(geometry: str | Path, query_atom: int, clash_threshold: float = 1) -> bool:
@@ -618,20 +786,39 @@ def cf3(input_file: str, xyz: str, site: int, directory: str, positively_charged
         for dihed in angle_connection:
             if len(connection_table[dihed]) != 1 and dihed != angle_atom and dihed != site:
                 # dihedral_connection = connection_table[dihed]
-                dihedral_atoms.append(dihed) 
+                dihedral_atoms.append(dihed)
             else:
                 pass
         dihedral_atom = min(dihedral_atoms)
         # print(f'site is: {site}, angle atom is: {angle_atom}, dihedral atom is: {dihedral_atom}')
-        c_dihed = 102.600000
-        f1_dihed = -179.300000
-        f2_dihed = 63.800000
-        f3_dihed = -58.000000
 
-        lines.append(f'C    2.000000  {const}  101.000000  1  {c_dihed}  1     {site}   {angle_atom}   {dihedral_atom}\n')
-        lines.append(f'F    1.351000  1  107.100000  1  {f1_dihed} 1     {atom_count + 1}  {site}   {angle_atom}\n')
-        lines.append(f'F    1.350000  1  107.800000  1  {f2_dihed}   1     {atom_count + 1}  {site}   {angle_atom}\n')
-        lines.append(f'F    1.345000  1  114.600000  1  {f3_dihed}  1     {atom_count + 1}  {site}   {angle_atom}\n')
+        # Get parameters from the RADICAL_PARAMS dictionary
+        params = RADICAL_PARAMS['cf3']
+
+        # Extract necessary values
+        c_c_dist = params['c_c_dist']
+        c_f1_dist = params['c_f1_dist']
+        c_f2_dist = params['c_f2_dist']
+        c_f3_dist = params['c_f3_dist']
+
+        c_c_angle = params['c_c_angle']
+        c_f1_angle = params['c_f1_angle']
+        c_f2_angle = params['c_f2_angle']
+        c_f3_angle = params['c_f3_angle']
+
+        c_dihed = params['c_dihed']
+        f1_dihed = params['f1_dihed']
+        f2_dihed = params['f2_dihed']
+        f3_dihed = params['f3_dihed']
+
+        lines.append(
+            f'C    {c_c_dist}  {const}  {c_c_angle}  1  {c_dihed}  1     {site}   {angle_atom}   {dihedral_atom}\n')
+        lines.append(
+            f'F    {c_f1_dist}  1  {c_f1_angle}  1  {f1_dihed} 1     {atom_count + 1}  {site}   {angle_atom}\n')
+        lines.append(
+            f'F    {c_f2_dist}  1  {c_f2_angle}  1  {f2_dihed}   1     {atom_count + 1}  {site}   {angle_atom}\n')
+        lines.append(
+            f'F    {c_f3_dist}  1  {c_f3_angle}  1  {f3_dihed}  1     {atom_count + 1}  {site}   {angle_atom}\n')
 
         with open(Path(f'{directory}/temp_ts.dat'), 'w+') as tmp:
             for string in lines:
@@ -650,16 +837,20 @@ def cf3(input_file: str, xyz: str, site: int, directory: str, positively_charged
                        check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian))]
         while any(check_atoms) is True:
             # print('here')
-            rotation_spacing = 360/72
+            rotation_spacing = 360 / 72
             c_dihed += rotation_spacing
             f1_dihed += rotation_spacing
             f2_dihed += rotation_spacing
             f3_dihed += rotation_spacing
 
-            lines[-4] = f'C    2.000000  {const}  101.000000  1  {c_dihed}  1     {site}   {angle_atom}   {dihedral_atom}\n'
-            lines[-3] = f'F    1.351000  1  107.100000  1  {f1_dihed} 1     {atom_count + 1}  {site}   {angle_atom}\n'
-            lines[-2] = f'F    1.350000  1  107.800000  1  {f2_dihed}   1     {atom_count + 1}  {site}   {angle_atom}\n'
-            lines[-1] = f'F    1.345000  1  114.600000  1  {f3_dihed}  1     {atom_count + 1}  {site}   {angle_atom}\n'
+            lines[
+                -4] = f'C    {c_c_dist}  {const}  {c_c_angle}  1  {c_dihed}  1     {site}   {angle_atom}   {dihedral_atom}\n'
+            lines[
+                -3] = f'F    {c_f1_dist}  1  {c_f1_angle}  1  {f1_dihed} 1     {atom_count + 1}  {site}   {angle_atom}\n'
+            lines[
+                -2] = f'F    {c_f2_dist}  1  {c_f2_angle}  1  {f2_dihed}   1     {atom_count + 1}  {site}   {angle_atom}\n'
+            lines[
+                -1] = f'F    {c_f3_dist}  1  {c_f3_angle}  1  {f3_dihed}  1     {atom_count + 1}  {site}   {angle_atom}\n'
 
             os.remove(Path(f'{directory}/temp_ts.dat'))
             os.remove(Path(f'{directory}/temp_ts.xyz'))
@@ -691,187 +882,35 @@ def cf3(input_file: str, xyz: str, site: int, directory: str, positively_charged
 def cf2h(input_file: str, xyz: str, site: int, directory: str, positively_charged: bool = False,
          constrained: bool = False, precise: bool = False, new_mopac_2016: bool = False) -> None:
     """
-    Modifies a given input file to generate conformational analysis data for a molecule based
-    on specific criteria such as the site of interest, constraints, and charge.
+    This function modifies a MOPAC input file for CF2H radical, generates transition state geometry files,
+    and handles file conversions and MOPAC computations with proper atom placement.
 
-    This function reads molecular data provided in a file and applies modifications to the
-    atomic and molecular properties based on the user-defined parameters. It uses various
-    external tools such as obabel and mopac for processing molecular geometry and performing
-    rotational conformational analysis to minimize clashes.
-
-    :param input_file: Path to the input file containing molecular data.
+    :param input_file: Path to the MOPAC input file to be modified.
     :type input_file: str
-    :param xyz: Path to the XYZ file containing 3D Cartesian coordinates of the molecule.
+    :param xyz: Path to the XYZ format file containing molecular structure.
     :type xyz: str
-    :param site: The specific atomic site of interest for conformational analysis.
+    :param site: Index of the atom serving as central site for bond connections.
     :type site: int
-    :param directory: Directory where temporary and output files are saved.
+    :param directory: Path to the directory for temporary files and output.
     :type directory: str
-    :param positively_charged: Indicates whether the molecule is positively charged.
-    :type positively_charged: bool, optional
-    :param constrained: Indicates whether the geometry optimization is constrained.
-    :type constrained: bool, optional
-    :param precise: Enables precise computational methods if set to True.
-    :type precise: bool, optional
-    :param new_mopac_2016: Activates specific MOPAC 2016 features if set to True.
-    :type new_mopac_2016: bool, optional
-    :return: None
-    :rtype: None
-    """
-    with open(input_file) as file:
-
-        lines = file.readlines()
-
-        precise_part = "PRECISE " if precise else ""
-        charge_part = "CHARGE=+1 " if positively_charged else ""
-        disp_part = "DISP " if new_mopac_2016 else ""
-
-        lines[0] = f"AM1 TS LET MMOK GEO-OK {precise_part}{charge_part}{disp_part}UHF\n"
-
-        if not constrained:
-            const = 1
-        else:
-            const = 0
-            ts = lines[0].split()
-            ts.remove('TS')
-            ts[-1] = 'UHF\n'
-            t = " "
-            t = t.join(ts)
-            lines[0] = t
-
-        compound = cc.Cartesian.read_xyz(str(xyz), start_index=1)
-        with open(str(xyz)) as coord:
-            coords = coord.readlines()
-            atom_count = int(coords[0])
-        connection_table = compound.get_bonds()
-        site_connection = connection_table[site]
-        for bonded in site_connection:
-            if len(connection_table[bonded]) != 1 and bonded != site:
-                angle_connection = connection_table[bonded]
-                angle_atom = bonded
-
-            else:
-                pass
-        dihedral_atoms = []
-        for dihed in angle_connection:
-            if len(connection_table[dihed]) != 1 and dihed != angle_atom and dihed != site:
-                # dihedral_connection = connection_table[dihed]
-                dihedral_atoms.append(dihed)
-            else:
-                pass
-        dihedral_atom = min(dihedral_atoms)
-        # print(f'site is: {site}, angle atom is: {angle_atom}, dihedral atom is: {dihedral_atom}')
-        c_dihed = 102.600000
-        f1_dihed = 57.2481322
-        h_dihed = -66.4380492
-        f2_dihed = 170.4046283
-
-        lines.append(f'C    2.000000  {const}  101.000000  1  {c_dihed}  1     {site}   {angle_atom}   {dihedral_atom}\n')
-        lines.append(f'F    1.351000  1  107.100000  1  {f1_dihed} 1     {atom_count + 1}  {site}   {angle_atom}\n')
-        lines.append(f'H    1.350000  1  107.800000  1  {h_dihed}   1     {atom_count + 1}  {site}   {angle_atom}\n')
-        lines.append(f'F    1.345000  1  114.600000  1  {f2_dihed}  1     {atom_count + 1}  {site}   {angle_atom}\n')
-
-        with open(Path(f'{directory}/temp_ts.dat'), 'w+') as tmp:
-            for string in lines:
-                tmp.write(str(string))
-
-        check_call(['obabel', '-imopin', Path(f'{directory}/temp_ts.dat'), '-oxyz', '-O',
-                    Path(f'{directory}/temp_ts.xyz')], stdout=DEVNULL, stderr=STDOUT)
-        # os.system('obabel -imopin temp_ts.dat -oxyz -O temp_ts.xyz > /dev/null 2>&1')
-        with open(Path(f'{directory}/temp_ts.xyz'), 'r+') as inp:
-            lin = inp.readlines()
-            cartesian = lin[2:]
-
-        check_atoms = [check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 3),
-                       check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 2),
-                       check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 1),
-                       check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian))]
-        while any(check_atoms) is True:
-            # print('here')
-            rotation_spacing = 360/72
-            c_dihed += rotation_spacing
-            f1_dihed += rotation_spacing
-            h_dihed += rotation_spacing
-            f2_dihed += rotation_spacing
-
-            lines[-4] = f'C    2.000000  {const}  101.000000  1  {c_dihed}  1     {site}   {angle_atom}   {dihedral_atom}\n'
-            lines[-3] = f'F    1.351000  1  107.100000  1  {f1_dihed} 1     {atom_count + 1}  {site}   {angle_atom}\n'
-            lines[-2] = f'H    1.350000  1  107.800000  1  {h_dihed}   1     {atom_count + 1}  {site}   {angle_atom}\n'
-            lines[-1] = f'F    1.345000  1  114.600000  1  {f2_dihed}  1     {atom_count + 1}  {site}   {angle_atom}\n'
-
-            os.remove(Path(f'{directory}/temp_ts.dat'))
-            os.remove(Path(f'{directory}/temp_ts.xyz'))
-            with open(Path(f'{directory}/temp_ts.dat'), 'w+') as tmp:
-                for string in lines:
-                    tmp.write(str(string))
-
-            check_call(['obabel', '-imopin', Path(f'{directory}/temp_ts.dat'), '-oxyz', '-O',
-                        Path(f'{directory}/temp_ts.xyz')], stdout=DEVNULL, stderr=STDOUT)
-            # os.system('obabel -imopin temp_ts.dat -oxyz -O temp_ts.xyz > /dev/null 2>&1')
-            with open(Path(f'{directory}/temp_ts.xyz'), 'r+') as inp:
-                lin = inp.readlines()
-                cartesian = lin[2:]
-            check_atoms = [check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 3),
-                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 2),
-                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 1),
-                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian))]
-
-    os.remove(Path(f'{directory}/temp_ts.dat'))
-    os.remove(Path(f'{directory}/temp_ts.xyz'))
-    os.remove(f'{input_file}')
-    with open(f'{input_file}', 'w+') as file:
-        for string in lines:
-            # print(string)
-            file.write(str(string))
-
-    check_call([mopac_path, f'{input_file}'], stdout=DEVNULL, stderr=STDOUT)
-
-
-def ipr(input_file, xyz, site, directory, positively_charged=False, constrained=False, precise=False, new_mopac_2016=False):
-    """
-    Adjusts a given molecular structure input file and generates a temporary structure with
-    new dihedral angle configurations. The function prepares the data for further processing
-    by an external tool (Open Babel).
-
-    This function modifies the first line of the input file based on specific boolean flags
-    (precise, positively_charged, new_mopac_2016). The content of the file is appended
-    with new coordinates calculated using geometric properties of the given compound and
-    expected dihedral angles. The output is saved in a temporary file with further modifications
-    done using Open Babel.
-
-    :param input_file: Path to the input molecular structure file.
-    :type input_file: str or Path
-    :param xyz: Path to the XYZ file containing coordinates of the compound.
-    :type xyz: str or Path
-    :param site: Index of the site atom for geometric calculations.
-    :type site: int
-    :param directory: Path to the directory where generated temporary files will be saved.
-    :type directory: str or Path
-    :param positively_charged: A flag to indicate if the molecule is positively charged.
-                               Defaults to False.
+    :param positively_charged: Flag for positively charged molecule.
     :type positively_charged: bool
-    :param constrained: A flag to indicate if the molecule is constrained. Defaults to False.
+    :param constrained: Flag for applying geometrical constraints.
     :type constrained: bool
-    :param precise: A flag to indicate if precise calculation mode should be enabled.
-                    Defaults to False.
+    :param precise: Flag for precise optimizations.
     :type precise: bool
-    :param new_mopac_2016: A flag to indicate if the new MOPAC 2016 style should be used.
-                           Defaults to False.
+    :param new_mopac_2016: Flag for MOPAC 2016-specific features.
     :type new_mopac_2016: bool
-    :return: None. The function writes the temporary output to the directory defined by the
-             parameter `directory`.
-    :rtype: None
-
+    :return: None
     """
     with open(input_file) as file:
-
         lines = file.readlines()
 
         if precise is False and positively_charged is False:
             if new_mopac_2016 is False:
                 lines[0] = 'AM1 TS LET MMOK GEO-OK UHF\n'
             else:
-                lines[0] = 'AM1 TS LET MMOK GEO-OK DISP UHF\n'
+                lines[0] = 'AM1 TS LET MMOK GEO-OK DISP CYCLES=10000 UHF\n'
         elif precise is False and positively_charged is True:
             if new_mopac_2016 is False:
                 lines[0] = 'AM1 TS LET MMOK GEO-OK CHARGE=+1 UHF\n'
@@ -881,7 +920,7 @@ def ipr(input_file, xyz, site, directory, positively_charged=False, constrained=
             if new_mopac_2016 is False:
                 lines[0] = 'AM1 TS LET MMOK GEO-OK PRECISE UHF\n'
             else:
-                lines[0] = 'AM1 TS LET MMOK GEO-OK PRECISE DISP UHF\n'
+                lines[0] = 'AM1 TS LET MMOK GEO-OK PRECISE DISP CYCLES=10000 UHF\n'
         elif precise is True and positively_charged is True:
             if new_mopac_2016 is False:
                 lines[0] = 'AM1 TS LET MMOK GEO-OK PRECISE CHARGE=+1 UHF\n'
@@ -919,29 +958,34 @@ def ipr(input_file, xyz, site, directory, positively_charged=False, constrained=
                 dihedral_atoms.append(dihed)
             else:
                 pass
-        dihedral_atom = min(dihedral_atoms) # TODO RA: Should these be hard coded? If so consider having a dictionary of standard values and store at the top of the file. Makes editing much easier. 
-        # print(f'site is: {site}, angle atom is: {angle_atom}, dihedral atom is: {dihedral_atom}')
-        c1_dihed = 254.264918
-        c2_dihed = 301.336871
-        c3_dihed = 179.509647
-        h1_dihed = 60.272731
-        h2_dihed = 291.898120
-        h3_dihed = 172.085792
-        h4_dihed = 52.709817
-        h5_dihed = 69.148928
-        h6_dihed = 308.139965
-        h7_dihed = 188.805597
-        # TODO RA: Again is all this meant to be hard coded?
-        lines.append(f'C    2.021139  {const}  100.078262  1  {c1_dihed}  1     {site}   {angle_atom}   {dihedral_atom}\n')
-        lines.append(f'C    1.482068  1  104.004890  1  {c2_dihed}  1     {atom_count + 1}  {site}   {angle_atom}\n')
-        lines.append(f'C    1.481423  1  104.119367  1  {c3_dihed}  1     {atom_count + 1}  {site}   {angle_atom}\n')
-        lines.append(f'H    1.103400  1   97.795054  1  {h1_dihed} 1     {atom_count + 1}  {site}   {angle_atom}\n')
-        lines.append(f'H    1.117064  1  111.484379  1  {h2_dihed}   1     {atom_count + 3}  {atom_count + 1}   {site}\n')
-        lines.append(f'H    1.120711  1  109.826665  1  {h3_dihed}  1     {atom_count + 3}  {atom_count + 1}   {site}\n')
-        lines.append(f'H    1.118015  1  110.943566  1  {h4_dihed}  1     {atom_count + 3}  {atom_count + 1}   {site}\n')
-        lines.append(f'H    1.117322  1  111.323645  1  {h5_dihed}  1     {atom_count + 2}  {atom_count + 1}   {site}\n')
-        lines.append(f'H    1.118059  1  111.047346  1  {h6_dihed}  1     {atom_count + 2}  {atom_count + 1}   {site}\n')
-        lines.append(f'H    1.120507  1  109.884160  1  {h7_dihed}  1     {atom_count + 2}  {atom_count + 1}   {site}\n')
+        dihedral_atom = min(dihedral_atoms)
+
+        # Get parameters from the RADICAL_PARAMS dictionary
+        params = RADICAL_PARAMS['cf2h']
+
+        # Extract necessary values
+        c_c_dist = params['c_c_dist']
+        c_f1_dist = params['c_f1_dist']
+        c_f2_dist = params['c_f2_dist']
+        c_h_dist = params['c_h_dist']
+
+        c_c_angle = params['c_c_angle']
+        c_f1_angle = params['c_f1_angle']
+        c_f2_angle = params['c_f2_angle']
+        c_h_angle = params['c_h_angle']
+
+        c_dihed = params['c_dihed']
+        f1_dihed = params['f1_dihed']
+        f2_dihed = params['f2_dihed']
+        h_dihed = params['h_dihed']
+
+        lines.append(
+            f'C    {c_c_dist}  {const}  {c_c_angle}  1  {c_dihed}  1     {site}   {angle_atom}   {dihedral_atom}\n')
+        lines.append(
+            f'F    {c_f1_dist}  1  {c_f1_angle}  1  {f1_dihed}  1     {atom_count + 1}  {site}   {angle_atom}\n')
+        lines.append(
+            f'F    {c_f2_dist}  1  {c_f2_angle}  1  {f2_dihed}  1     {atom_count + 1}  {site}   {angle_atom}\n')
+        lines.append(f'H    {c_h_dist}  1  {c_h_angle}  1  {h_dihed}  1     {atom_count + 1}  {site}   {angle_atom}\n')
 
         with open(Path(f'{directory}/temp_ts.dat'), 'w+') as tmp:
             for string in lines:
@@ -949,7 +993,199 @@ def ipr(input_file, xyz, site, directory, positively_charged=False, constrained=
 
         check_call(['obabel', '-imopin', Path(f'{directory}/temp_ts.dat'), '-oxyz', '-O',
                     Path(f'{directory}/temp_ts.xyz')], stdout=DEVNULL, stderr=STDOUT)
-        # os.system('obabel -imopin temp_ts.dat -oxyz -O temp_ts.xyz > /dev/null 2>&1')
+        with open(Path(f'{directory}/temp_ts.xyz'), 'r+') as inp:
+            lin = inp.readlines()
+            cartesian = lin[2:]
+
+        check_atoms = [check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 3),
+                       check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 2),
+                       check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 1),
+                       check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian))]
+        while any(check_atoms) is True:
+            rotation_spacing = 360 / 72
+            c_dihed += rotation_spacing
+            f1_dihed += rotation_spacing
+            f2_dihed += rotation_spacing
+            h_dihed += rotation_spacing
+
+            lines[
+                -4] = f'C    {c_c_dist}  {const}  {c_c_angle}  1  {c_dihed}  1     {site}   {angle_atom}   {dihedral_atom}\n'
+            lines[
+                -3] = f'F    {c_f1_dist}  1  {c_f1_angle}  1  {f1_dihed}  1     {atom_count + 1}  {site}   {angle_atom}\n'
+            lines[
+                -2] = f'F    {c_f2_dist}  1  {c_f2_angle}  1  {f2_dihed}  1     {atom_count + 1}  {site}   {angle_atom}\n'
+            lines[
+                -1] = f'H    {c_h_dist}  1  {c_h_angle}  1  {h_dihed}  1     {atom_count + 1}  {site}   {angle_atom}\n'
+
+            os.remove(Path(f'{directory}/temp_ts.dat'))
+            os.remove(Path(f'{directory}/temp_ts.xyz'))
+            with open(Path(f'{directory}/temp_ts.dat'), 'w+') as tmp:
+                for string in lines:
+                    tmp.write(str(string))
+            check_call(['obabel', '-imopin', Path(f'{directory}/temp_ts.dat'), '-oxyz', '-O',
+                        Path(f'{directory}/temp_ts.xyz')], stdout=DEVNULL, stderr=STDOUT)
+            with open(Path(f'{directory}/temp_ts.xyz'), 'r+') as inp:
+                lin = inp.readlines()
+                cartesian = lin[2:]
+            check_atoms = [check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 3),
+                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 2),
+                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 1),
+                           check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian))]
+
+    os.remove(Path(f'{directory}/temp_ts.dat'))
+    os.remove(Path(f'{directory}/temp_ts.xyz'))
+    os.remove(f'{input_file}')
+    with open(f'{input_file}', 'w+') as file:
+        for string in lines:
+            file.write(str(string))
+
+    check_call([mopac_path, f'{input_file}'], stdout=DEVNULL, stderr=STDOUT)
+
+
+def ipr(input_file: str, xyz: str, site: int, directory: str, positively_charged: bool = False,
+        constrained: bool = False, precise: bool = False, new_mopac_2016: bool = False) -> None:
+    """
+    This function modifies a MOPAC input file for isopropyl radical, generates transition state geometry files,
+    and handles file conversions and MOPAC computations with proper atom placement.
+
+    :param input_file: Path to the MOPAC input file to be modified.
+    :type input_file: str
+    :param xyz: Path to the XYZ format file containing molecular structure.
+    :type xyz: str
+    :param site: Index of the atom serving as central site for bond connections.
+    :type site: int
+    :param directory: Path to the directory for temporary files and output.
+    :type directory: str
+    :param positively_charged: Flag for positively charged molecule.
+    :type positively_charged: bool
+    :param constrained: Flag for applying geometrical constraints.
+    :type constrained: bool
+    :param precise: Flag for precise optimizations.
+    :type precise: bool
+    :param new_mopac_2016: Flag for MOPAC 2016-specific features.
+    :type new_mopac_2016: bool
+    :return: None
+    """
+    with open(input_file) as file:
+        lines = file.readlines()
+
+        if precise is False and positively_charged is False:
+            if new_mopac_2016 is False:
+                lines[0] = 'AM1 TS LET MMOK GEO-OK UHF\n'
+            else:
+                lines[0] = 'AM1 TS LET MMOK GEO-OK DISP CYCLES=10000 UHF\n'
+        elif precise is False and positively_charged is True:
+            if new_mopac_2016 is False:
+                lines[0] = 'AM1 TS LET MMOK GEO-OK CHARGE=+1 UHF\n'
+            else:
+                lines[0] = 'AM1 TS LET MMOK GEO-OK CHARGE=+1 DISP UHF\n'
+        elif precise is True and positively_charged is False:
+            if new_mopac_2016 is False:
+                lines[0] = 'AM1 TS LET MMOK GEO-OK PRECISE UHF\n'
+            else:
+                lines[0] = 'AM1 TS LET MMOK GEO-OK PRECISE DISP CYCLES=10000 UHF\n'
+        elif precise is True and positively_charged is True:
+            if new_mopac_2016 is False:
+                lines[0] = 'AM1 TS LET MMOK GEO-OK PRECISE CHARGE=+1 UHF\n'
+            else:
+                lines[0] = 'AM1 TS LET MMOK GEO-OK PRECISE CHARGE=+1 DISP UHF\n'
+
+        if not constrained:
+            const = 1
+        else:
+            const = 0
+            ts = lines[0].split()
+            ts.remove('TS')
+            ts[-1] = 'UHF\n'
+            t = " "
+            t = t.join(ts)
+            lines[0] = t
+
+        compound = cc.Cartesian.read_xyz(str(xyz), start_index=1)
+        with open(str(xyz)) as coord:
+            coords = coord.readlines()
+            atom_count = int(coords[0])
+        connection_table = compound.get_bonds()
+        site_connection = connection_table[site]
+        for bonded in site_connection:
+            if len(connection_table[bonded]) != 1 and bonded != site:
+                angle_connection = connection_table[bonded]
+                angle_atom = bonded
+
+            else:
+                pass
+        dihedral_atoms = []
+        for dihed in angle_connection:
+            if len(connection_table[dihed]) != 1 and dihed != angle_atom and dihed != site:
+                # dihedral_connection = connection_table[dihed]
+                dihedral_atoms.append(dihed)
+            else:
+                pass
+        dihedral_atom = min(dihedral_atoms)
+
+        # Get parameters from the RADICAL_PARAMS dictionary
+        params = RADICAL_PARAMS['ipr']
+
+        # Extract necessary values
+        c_c_dist = params['c_c_dist']
+        c1_c_dist = params['c1_c_dist']
+        c2_c_dist = params['c2_c_dist']
+        h_c_dist = params['h_c_dist']
+        h1_c1_dist = params['h1_c1_dist']
+        h2_c1_dist = params['h2_c1_dist']
+        h3_c1_dist = params['h3_c1_dist']
+        h4_c2_dist = params['h4_c2_dist']
+        h5_c2_dist = params['h5_c2_dist']
+        h6_c2_dist = params['h6_c2_dist']
+
+        c_c_angle = params['c_c_angle']
+        c1_c_angle = params['c1_c_angle']
+        c2_c_angle = params['c2_c_angle']
+        h_c_angle = params['h_c_angle']
+        h1_c1_angle = params['h1_c1_angle']
+        h2_c1_angle = params['h2_c1_angle']
+        h3_c1_angle = params['h3_c1_angle']
+        h4_c2_angle = params['h4_c2_angle']
+        h5_c2_angle = params['h5_c2_angle']
+        h6_c2_angle = params['h6_c2_angle']
+
+        c1_dihed = params['c1_dihed']
+        c2_dihed = params['c2_dihed']
+        c3_dihed = params['c3_dihed']
+        h1_dihed = params['h1_dihed']
+        h2_dihed = params['h2_dihed']
+        h3_dihed = params['h3_dihed']
+        h4_dihed = params['h4_dihed']
+        h5_dihed = params['h5_dihed']
+        h6_dihed = params['h6_dihed']
+        h7_dihed = params['h7_dihed']
+
+        lines.append(
+            f'C    {c_c_dist}  {const}  {c_c_angle}  1  {c1_dihed}  1     {site}   {angle_atom}   {dihedral_atom}\n')
+        lines.append(
+            f'C    {c1_c_dist}  1  {c1_c_angle}  1  {c2_dihed}  1     {atom_count + 1}  {site}   {angle_atom}\n')
+        lines.append(
+            f'C    {c2_c_dist}  1  {c2_c_angle}  1  {c3_dihed}  1     {atom_count + 1}  {site}   {angle_atom}\n')
+        lines.append(f'H    {h_c_dist}  1  {h_c_angle}  1  {h1_dihed} 1     {atom_count + 1}  {site}   {angle_atom}\n')
+        lines.append(
+            f'H    {h1_c1_dist}  1  {h1_c1_angle}  1  {h2_dihed}   1     {atom_count + 3}  {atom_count + 1}   {site}\n')
+        lines.append(
+            f'H    {h2_c1_dist}  1  {h2_c1_angle}  1  {h3_dihed}  1     {atom_count + 3}  {atom_count + 1}   {site}\n')
+        lines.append(
+            f'H    {h3_c1_dist}  1  {h3_c1_angle}  1  {h4_dihed}  1     {atom_count + 3}  {atom_count + 1}   {site}\n')
+        lines.append(
+            f'H    {h4_c2_dist}  1  {h4_c2_angle}  1  {h5_dihed}  1     {atom_count + 2}  {atom_count + 1}   {site}\n')
+        lines.append(
+            f'H    {h5_c2_dist}  1  {h5_c2_angle}  1  {h6_dihed}  1     {atom_count + 2}  {atom_count + 1}   {site}\n')
+        lines.append(
+            f'H    {h6_c2_dist}  1  {h6_c2_angle}  1  {h7_dihed}  1     {atom_count + 2}  {atom_count + 1}   {site}\n')
+
+        with open(Path(f'{directory}/temp_ts.dat'), 'w+') as tmp:
+            for string in lines:
+                tmp.write(str(string))
+
+        check_call(['obabel', '-imopin', Path(f'{directory}/temp_ts.dat'), '-oxyz', '-O',
+                    Path(f'{directory}/temp_ts.xyz')], stdout=DEVNULL, stderr=STDOUT)
         with open(Path(f'{directory}/temp_ts.xyz'), 'r+') as inp:
             lin = inp.readlines()
             cartesian = lin[2:]
@@ -965,8 +1201,7 @@ def ipr(input_file, xyz, site, directory, positively_charged=False, constrained=
                        check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 1),
                        check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian))]
         while any(check_atoms) is True:
-            # print('here')
-            rotation_spacing = 360/72
+            rotation_spacing = 360 / 72
             c1_dihed += rotation_spacing
             c2_dihed += rotation_spacing
             c3_dihed += rotation_spacing
@@ -978,26 +1213,34 @@ def ipr(input_file, xyz, site, directory, positively_charged=False, constrained=
             h6_dihed += rotation_spacing
             h7_dihed += rotation_spacing
 
-            lines[-10] = f'C    2.021139  {const}  100.078262  1  {c1_dihed}  1     {site}   {angle_atom}   {dihedral_atom}\n'
-            lines[-9] = f'C    1.482068  1  104.004890  1  {c2_dihed}  1     {atom_count + 1}  {site}   {angle_atom}\n'
-            lines[-8] = f'C    1.481423  1  104.119367  1  {c3_dihed}  1     {atom_count + 1}  {site}   {angle_atom}\n'
-            lines[-7] = f'H    1.103400  1   97.795054  1  {h1_dihed} 1     {atom_count + 1}  {site}   {angle_atom}\n'
-            lines[-6] = f'H    1.117064  1  111.484379  1  {h2_dihed}   1     {atom_count + 3}  {atom_count + 1}   {site}\n'
-            lines[-5] = f'H    1.120711  1  109.826665  1  {h3_dihed}  1     {atom_count + 3}  {atom_count + 1}   {site}\n'
-            lines[-4] = f'H    1.118015  1  110.943566  1  {h4_dihed}  1     {atom_count + 3}  {atom_count + 1}   {site}\n'
-            lines[-3] = f'H    1.117322  1  111.323645  1  {h5_dihed}  1     {atom_count + 2}  {atom_count + 1}   {site}\n'
-            lines[-2] = f'H    1.118059  1  111.047346  1  {h6_dihed}  1     {atom_count + 2}  {atom_count + 1}   {site}\n'
-            lines[-1] = f'H    1.120507  1  109.884160  1  {h7_dihed}  1     {atom_count + 2}  {atom_count + 1}   {site}\n'
+            lines[
+                -10] = f'C    {c_c_dist}  {const}  {c_c_angle}  1  {c1_dihed}  1     {site}   {angle_atom}   {dihedral_atom}\n'
+            lines[
+                -9] = f'C    {c1_c_dist}  1  {c1_c_angle}  1  {c2_dihed}  1     {atom_count + 1}  {site}   {angle_atom}\n'
+            lines[
+                -8] = f'C    {c2_c_dist}  1  {c2_c_angle}  1  {c3_dihed}  1     {atom_count + 1}  {site}   {angle_atom}\n'
+            lines[
+                -7] = f'H    {h_c_dist}  1  {h_c_angle}  1  {h1_dihed} 1     {atom_count + 1}  {site}   {angle_atom}\n'
+            lines[
+                -6] = f'H    {h1_c1_dist}  1  {h1_c1_angle}  1  {h2_dihed}   1     {atom_count + 3}  {atom_count + 1}   {site}\n'
+            lines[
+                -5] = f'H    {h2_c1_dist}  1  {h2_c1_angle}  1  {h3_dihed}  1     {atom_count + 3}  {atom_count + 1}   {site}\n'
+            lines[
+                -4] = f'H    {h3_c1_dist}  1  {h3_c1_angle}  1  {h4_dihed}  1     {atom_count + 3}  {atom_count + 1}   {site}\n'
+            lines[
+                -3] = f'H    {h4_c2_dist}  1  {h4_c2_angle}  1  {h5_dihed}  1     {atom_count + 2}  {atom_count + 1}   {site}\n'
+            lines[
+                -2] = f'H    {h5_c2_dist}  1  {h5_c2_angle}  1  {h6_dihed}  1     {atom_count + 2}  {atom_count + 1}   {site}\n'
+            lines[
+                -1] = f'H    {h6_c2_dist}  1  {h6_c2_angle}  1  {h7_dihed}  1     {atom_count + 2}  {atom_count + 1}   {site}\n'
 
             os.remove(Path(f'{directory}/temp_ts.dat'))
             os.remove(Path(f'{directory}/temp_ts.xyz'))
             with open(Path(f'{directory}/temp_ts.dat'), 'w+') as tmp:
                 for string in lines:
                     tmp.write(str(string))
-
             check_call(['obabel', '-imopin', Path(f'{directory}/temp_ts.dat'), '-oxyz', '-O',
                         Path(f'{directory}/temp_ts.xyz')], stdout=DEVNULL, stderr=STDOUT)
-            # os.system('obabel -imopin temp_ts.dat -oxyz -O temp_ts.xyz > /dev/null 2>&1')
             with open(Path(f'{directory}/temp_ts.xyz'), 'r+') as inp:
                 lin = inp.readlines()
                 cartesian = lin[2:]
@@ -1017,16 +1260,38 @@ def ipr(input_file, xyz, site, directory, positively_charged=False, constrained=
     os.remove(f'{input_file}')
     with open(f'{input_file}', 'w+') as file:
         for string in lines:
-            # print(string)
             file.write(str(string))
 
     check_call([mopac_path, f'{input_file}'], stdout=DEVNULL, stderr=STDOUT)
 
 
-def cf3_reactant(input_file, xyz, site, directory, positively_charged=False, reagent_optimised=True, new_mopac_2016=False, multiple=False):
+def cf3_reactant(input_file: str, xyz: str, site: int, directory: str, positively_charged: bool = False,
+                 reagent_optimised: bool = True, new_mopac_2016: bool = False, multiple: bool = False) -> None:
+    """
+    Generates the CF3 reactant structure, modifies atomic coordinates, and optimizes molecule files
+    to handle geometric clashes while preparing reaction intermediates. It utilizes input structural
+    data and parameters to create temporary and final data files required for chemical modeling.
 
+    :param input_file: The path to the input file containing initial molecule data.
+    :type input_file: str
+    :param xyz: The xyz file path containing atomic coordinates of the molecule.
+    :type xyz: str
+    :param site: The index (0-based) of the atom site where the CF3 group is to be added.
+    :type site: int
+    :param directory: The directory path for output files and intermediate results.
+    :type directory: str
+    :param positively_charged: Specifies whether the molecule is positively charged. Defaults to False.
+    :type positively_charged: bool
+    :param reagent_optimised: Specifies whether the reactant has been already optimized. Defaults to True.
+    :type reagent_optimised: bool
+    :param new_mopac_2016: Specifies whether to use the new MOPAC 2016 parameterizations. Defaults to False.
+    :type new_mopac_2016: bool
+    :param multiple: Specifies whether multiple conformers or variations are processed. Defaults to False.
+    :type multiple: bool
+    :return: None
+    :rtype: None
+    """
     with open(input_file) as file:
-
         lines = file.readlines()
 
         if positively_charged is False:
@@ -1056,7 +1321,6 @@ def cf3_reactant(input_file, xyz, site, directory, positively_charged=False, rea
             if len(connection_table[bonded]) != 1 and bonded != site:
                 angle_connection = connection_table[bonded]
                 angle_atom = bonded
-
             else:
                 pass
         dihedral_atoms = []
@@ -1067,17 +1331,33 @@ def cf3_reactant(input_file, xyz, site, directory, positively_charged=False, rea
             else:
                 pass
         dihedral_atom = min(dihedral_atoms)
-        # print(f'site is: {site}, angle atom is: {angle_atom}, dihedral atom is: {dihedral_atom}')
-        c_dihed = 102.600000
-        f1_dihed = -179.300000
-        f2_dihed = 63.800000
-        f3_dihed = -58.000000
+
+        # Get parameters from the RADICAL_PARAMS dictionary
+        params = RADICAL_PARAMS['cf3_reactant']
+
+        # Extract necessary values
+        c_c_dist = params['c_c_dist']
+        c_f1_dist = params['c_f1_dist']
+        c_f2_dist = params['c_f2_dist']
+        c_f3_dist = params['c_f3_dist']
+
+        c_c_angle = params['c_c_angle']
+        c_f1_angle = params['c_f1_angle']
+        c_f2_angle = params['c_f2_angle']
+        c_f3_angle = params['c_f3_angle']
+
+        c_dihed = params['c_dihed']
+        f1_dihed = params['f1_dihed']
+        f2_dihed = params['f2_dihed']
+        f3_dihed = params['f3_dihed']
+
         fukui = lines.copy()
         fukui_dir = f'{str(Path("/")).join(str(directory).split(str(Path("/")))[:-1])}{str(Path("/fukui"))}'
-        lines.append(f'C    12.000000  1  101.000000  1  {c_dihed}  1     {site}   {angle_atom}   {dihedral_atom}\n')
-        lines.append(f'F    1.351000  1  107.100000  1  {f1_dihed} 1     {atom_count + 1}  {site}   {angle_atom}\n')
-        lines.append(f'F    1.350000  1  107.800000  1  {f2_dihed}   1     {atom_count + 1}  {site}   {angle_atom}\n')
-        lines.append(f'F    1.345000  1  114.600000  1  {f3_dihed}  1     {atom_count + 1}  {site}   {angle_atom}\n')
+
+        lines.append(f'C    {c_c_dist}  1  {c_c_angle}  1  {c_dihed}  1     {site}   {angle_atom}   {dihedral_atom}\n')
+        lines.append(f'F    {c_f1_dist}  1  {c_f1_angle}  1  {f1_dihed} 1     {atom_count + 1}  {site}   {angle_atom}\n')
+        lines.append(f'F    {c_f2_dist}  1  {c_f2_angle}  1  {f2_dihed}   1     {atom_count + 1}  {site}   {angle_atom}\n')
+        lines.append(f'F    {c_f3_dist}  1  {c_f3_angle}  1  {f3_dihed}  1     {atom_count + 1}  {site}   {angle_atom}\n')
 
         with open(Path(f'{directory}/temp_ts.dat'), 'w+') as tmp:
             for string in lines:
@@ -1085,7 +1365,6 @@ def cf3_reactant(input_file, xyz, site, directory, positively_charged=False, rea
 
         check_call(['obabel', '-imopin', Path(f'{directory}/temp_ts.dat'), '-oxyz', '-O',
                     Path(f'{directory}/temp_ts.xyz')], stdout=DEVNULL, stderr=STDOUT)
-        # os.system('obabel -imopin temp_ts.dat -oxyz -O temp_ts.xyz > /dev/null 2>&1')
         with open(Path(f'{directory}/temp_ts.xyz'), 'r+') as inp:
             lin = inp.readlines()
             cartesian = lin[2:]
@@ -1095,17 +1374,16 @@ def cf3_reactant(input_file, xyz, site, directory, positively_charged=False, rea
                        check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 1),
                        check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian))]
         while any(check_atoms) is True:
-            # print('here')
             rotation_spacing = 360/72
             c_dihed += rotation_spacing
             f1_dihed += rotation_spacing
             f2_dihed += rotation_spacing
             f3_dihed += rotation_spacing
 
-            lines[-4] = f'C    12.000000  1  101.000000  1  {c_dihed}  1     {site}   {angle_atom}   {dihedral_atom}\n'
-            lines[-3] = f'F    1.351000  1  107.100000  1  {f1_dihed} 1     {atom_count + 1}  {site}   {angle_atom}\n'
-            lines[-2] = f'F    1.350000  1  107.800000  1  {f2_dihed}   1     {atom_count + 1}  {site}   {angle_atom}\n'
-            lines[-1] = f'F    1.345000  1  114.600000  1  {f3_dihed}  1     {atom_count + 1}  {site}   {angle_atom}\n'
+            lines[-4] = f'C    {c_c_dist}  1  {c_c_angle}  1  {c_dihed}  1     {site}   {angle_atom}   {dihedral_atom}\n'
+            lines[-3] = f'F    {c_f1_dist}  1  {c_f1_angle}  1  {f1_dihed} 1     {atom_count + 1}  {site}   {angle_atom}\n'
+            lines[-2] = f'F    {c_f2_dist}  1  {c_f2_angle}  1  {f2_dihed}   1     {atom_count + 1}  {site}   {angle_atom}\n'
+            lines[-1] = f'F    {c_f3_dist}  1  {c_f3_angle}  1  {f3_dihed}  1     {atom_count + 1}  {site}   {angle_atom}\n'
 
             os.remove(Path(f'{directory}/temp_ts.dat'))
             os.remove(Path(f'{directory}/temp_ts.xyz'))
@@ -1115,7 +1393,6 @@ def cf3_reactant(input_file, xyz, site, directory, positively_charged=False, rea
 
             check_call(['obabel', '-imopin', Path(f'{directory}/temp_ts.dat'), '-oxyz', '-O',
                         Path(f'{directory}/temp_ts.xyz')], stdout=DEVNULL, stderr=STDOUT)
-            # os.system('obabel -imopin temp_ts.dat -oxyz -O temp_ts.xyz > /dev/null 2>&1')
             with open(Path(f'{directory}/temp_ts.xyz'), 'r+') as inp:
                 lin = inp.readlines()
                 cartesian = lin[2:]
@@ -1126,7 +1403,8 @@ def cf3_reactant(input_file, xyz, site, directory, positively_charged=False, rea
 
         os.remove(Path(f'{directory}/temp_ts.dat'))
         os.remove(Path(f'{directory}/temp_ts.xyz'))
-        lines[-4] = f'C    50.000000  1  101.000000  1  {c_dihed}  1     {site}   {angle_atom}   {dihedral_atom}\n'
+        # Set C-C distance to 50.0 for final structure, as in original code
+        lines[-4] = f'C    50.000000  1  {c_c_angle}  1  {c_dihed}  1     {site}   {angle_atom}   {dihedral_atom}\n'
     with open(Path(f'{directory}/HF_reagent.dat'), 'w+') as file:
         for string in lines:
             # print(string)
@@ -1169,10 +1447,10 @@ def cf3_reactant(input_file, xyz, site, directory, positively_charged=False, rea
         with open(hf_calcs_file, 'w') as fil:
             fil.write(str(Path(f'{directory}/hf.sdf\n')))
             fil.write(str(Path(f'{fukui_dir}/hf.sdf\n')))
-    # os.system('obabel -imopin HF_reagent.dat -oxyz -O HF_reagent.xyz > /dev/null 2>&1')
 
 
-def cf2h_reactant(input_file, xyz, site, directory, positively_charged=False, reagent_optimised=True, new_mopac_2016=False, multiple=False):
+def cf2h_reactant(input_file: str, xyz: str, site: int, directory: str, positively_charged: bool = False,
+                  reagent_optimised: bool = True, new_mopac_2016: bool = False, multiple: bool = False) -> None:
     """
     This function modifies and prepares a MOPAC input file to simulate a CF2H reactant. Depending on the provided parameters,
     it applies necessary optimizations, charges, and dihedral atom configurations while preparing and validating the molecular
@@ -1192,10 +1470,9 @@ def cf2h_reactant(input_file, xyz, site, directory, positively_charged=False, re
     """
     if not reagent_optimised:
         with open(input_file) as file:
-
             lines = file.readlines()
 
-            if positively_charged is False: # TODO RA: You should make a function that does this, rather than re-making the same code over and over.
+            if positively_charged is False:
                 if new_mopac_2016 is False:
                     lines[0] = 'AM1 LET MMOK GEO-OK PRECISE\n'
                 else:
@@ -1213,7 +1490,6 @@ def cf2h_reactant(input_file, xyz, site, directory, positively_charged=False, re
         check_call([mopac_path, f'{input_file}'], stdout=DEVNULL, stderr=STDOUT)
     else:
         with open(input_file) as file:
-
             lines = file.readlines()
 
             if positively_charged is False:
@@ -1237,7 +1513,6 @@ def cf2h_reactant(input_file, xyz, site, directory, positively_charged=False, re
                 if len(connection_table[bonded]) != 1 and bonded != site:
                     angle_connection = connection_table[bonded]
                     angle_atom = bonded
-
                 else:
                     pass
             dihedral_atoms = []
@@ -1248,18 +1523,34 @@ def cf2h_reactant(input_file, xyz, site, directory, positively_charged=False, re
                 else:
                     pass
             dihedral_atom = min(dihedral_atoms)
-            # print(f'site is: {site}, angle atom is: {angle_atom}, dihedral atom is: {dihedral_atom}') 
-            # TODO RA: Should these be hard coded? If so consider having a dictionary of standard values and store at the top of the file. Makes editing much easier.
-            c_dihed = 102.600000
-            f1_dihed = 57.2481322
-            h_dihed = -66.4380492
-            f2_dihed = 170.4046283
+
+            # Get parameters from the RADICAL_PARAMS dictionary
+            params = RADICAL_PARAMS['cf2h_reactant']
+
+            # Extract necessary values
+            c_c_angle = params['c_c_angle']
+            c_f1_angle = params['c_f1_angle']
+            c_f2_angle = params['c_f2_angle']
+            c_h_angle = params['c_h_angle']
+
+            c_dihed = params['c_dihed']
+            f1_dihed = params['f1_dihed']
+            f2_dihed = params['f2_dihed']
+            h_dihed = params['h_dihed']
+
+            # Use parameters for bond distances
+            c_c_dist = params['c_c_dist']
+            c_f1_dist = params['c_f1_dist']
+            c_f2_dist = params['c_f2_dist']
+            c_h_dist = params['c_h_dist']
+
             fukui = lines.copy()
             fukui_dir = f'{str(Path("/")).join(str(directory).split(str(Path("/")))[:-1])}{str(Path("/fukui"))}'
-            lines.append(f'C    12.000000  1  101.000000  1  {c_dihed}  1     {site}   {angle_atom}   {dihedral_atom}\n')
-            lines.append(f'F    1.351000  1  107.100000  1  {f1_dihed} 1     {atom_count + 1}  {site}   {angle_atom}\n')
-            lines.append(f'H    1.350000  1  107.800000  1  {h_dihed}   1     {atom_count + 1}  {site}   {angle_atom}\n')
-            lines.append(f'F    1.345000  1  114.600000  1  {f2_dihed}  1     {atom_count + 1}  {site}   {angle_atom}\n')
+
+            lines.append(f'C    {c_c_dist}  1  {c_c_angle}  1  {c_dihed}  1     {site}   {angle_atom}   {dihedral_atom}\n')
+            lines.append(f'F    {c_f1_dist}  1  {c_f1_angle}  1  {f1_dihed} 1     {atom_count + 1}  {site}   {angle_atom}\n')
+            lines.append(f'H    {c_h_dist}  1  {c_h_angle}  1  {h_dihed}   1     {atom_count + 1}  {site}   {angle_atom}\n')
+            lines.append(f'F    {c_f2_dist}  1  {c_f2_angle}  1  {f2_dihed}  1     {atom_count + 1}  {site}   {angle_atom}\n')
 
             with open(Path(f'{directory}/temp_ts.dat'), 'w+') as tmp:
                 for string in lines:
@@ -1276,17 +1567,16 @@ def cf2h_reactant(input_file, xyz, site, directory, positively_charged=False, re
                            check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 1),
                            check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian))]
             while any(check_atoms) is True:
-                # print('here')
                 rotation_spacing = 360/72
                 c_dihed += rotation_spacing
                 f1_dihed += rotation_spacing
                 h_dihed += rotation_spacing
                 f2_dihed += rotation_spacing
 
-                lines[-4] = f'C    12.000000  1  101.000000  1  {c_dihed}  1     {site}   {angle_atom}   {dihedral_atom}\n'
-                lines[-3] = f'F    1.351000  1  107.100000  1  {f1_dihed} 1     {atom_count + 1}  {site}   {angle_atom}\n'
-                lines[-2] = f'H    1.350000  1  107.800000  1  {h_dihed}   1     {atom_count + 1}  {site}   {angle_atom}\n'
-                lines[-1] = f'F    1.345000  1  114.600000  1  {f2_dihed}  1     {atom_count + 1}  {site}   {angle_atom}\n'
+                lines[-4] = f'C    {c_c_dist}  1  {c_c_angle}  1  {c_dihed}  1     {site}   {angle_atom}   {dihedral_atom}\n'
+                lines[-3] = f'F    {c_f1_dist}  1  {c_f1_angle}  1  {f1_dihed} 1     {atom_count + 1}  {site}   {angle_atom}\n'
+                lines[-2] = f'H    {c_h_dist}  1  {c_h_angle}  1  {h_dihed}   1     {atom_count + 1}  {site}   {angle_atom}\n'
+                lines[-1] = f'F    {c_f2_dist}  1  {c_f2_angle}  1  {f2_dihed}  1     {atom_count + 1}  {site}   {angle_atom}\n'
 
                 os.remove(Path(f'{directory}/temp_ts.dat'))
                 os.remove(Path(f'{directory}/temp_ts.xyz'))
@@ -1313,7 +1603,9 @@ def cf2h_reactant(input_file, xyz, site, directory, positively_charged=False, re
                 file.write(str(string))
 
         check_call([mopac_path, f'{input_file}'], stdout=DEVNULL, stderr=STDOUT)
-        lines[-4] = f'C    50.000000  1  101.000000  1  {c_dihed}  1     {site}   {angle_atom}   {dihedral_atom}\n'
+
+        # Set C-C distance to 50.0 for final structure as in original code
+        lines[-4] = f'C    50.000000  1  {c_c_angle}  1  {c_dihed}  1     {site}   {angle_atom}   {dihedral_atom}\n'
         with open(Path(f'{directory}/HF_reagent.dat'), 'w+') as file:
             for string in lines:
                 # print(string)
@@ -1350,7 +1642,6 @@ def cf2h_reactant(input_file, xyz, site, directory, positively_charged=False, re
             with open(hf_calcs_file, 'w') as fil:
                 fil.write(str(Path(f'{directory}/hf.sdf\n')))
                 fil.write(str(Path(f'{fukui_dir}/hf.sdf\n')))
-        # os.system('obabel -imopin HF_reagent.dat -oxyz -O HF_reagent.xyz > /dev/null 2>&1')
 
 
 def ipr_reactant(input_file: str, xyz: str, site: int, directory: str, positively_charged: bool = False,
@@ -1383,7 +1674,6 @@ def ipr_reactant(input_file: str, xyz: str, site: int, directory: str, positivel
 
     if not reagent_optimised:
         with open(input_file) as file:
-
             lines = file.readlines()
 
             if positively_charged is False:
@@ -1399,12 +1689,10 @@ def ipr_reactant(input_file: str, xyz: str, site: int, directory: str, positivel
         os.remove(f'{input_file}')
         with open(f'{input_file}', 'w+') as file:
             for string in lines:
-                # print(string)
                 file.write(str(string))
         check_call([mopac_path, f'{input_file}'], stdout=DEVNULL, stderr=STDOUT)
     else:
         with open(input_file) as file:
-
             lines = file.readlines()
 
             if positively_charged is False:
@@ -1428,40 +1716,67 @@ def ipr_reactant(input_file: str, xyz: str, site: int, directory: str, positivel
                 if len(connection_table[bonded]) != 1 and bonded != site:
                     angle_connection = connection_table[bonded]
                     angle_atom = bonded
-
                 else:
                     pass
             dihedral_atoms = []
             for dihed in angle_connection:
                 if len(connection_table[dihed]) != 1 and dihed != angle_atom and dihed != site:
-                    # dihedral_connection = connection_table[dihed]
                     dihedral_atoms.append(dihed)
                 else:
                     pass
             dihedral_atom = min(dihedral_atoms)
-            # print(f'site is: {site}, angle atom is: {angle_atom}, dihedral atom is: {dihedral_atom}')
-            c1_dihed = 254.264918
-            c2_dihed = 301.336871
-            c3_dihed = 179.509647
-            h1_dihed = 60.272731
-            h2_dihed = 291.898120
-            h3_dihed = 172.085792
-            h4_dihed = 52.709817
-            h5_dihed = 69.148928
-            h6_dihed = 308.139965
-            h7_dihed = 188.805597
+
+            # Get parameters from the RADICAL_PARAMS dictionary
+            params = RADICAL_PARAMS['ipr_reactant']
+
+            # Extract necessary values
+            c_c_dist = params['c_c_dist']  # This will be overridden with 12.0 and later 50.0
+            c1_c_dist = params['c1_c_dist']
+            c2_c_dist = params['c2_c_dist']
+            h_c_dist = params['h_c_dist']
+            h1_c1_dist = params['h1_c1_dist']
+            h2_c1_dist = params['h2_c1_dist']
+            h3_c1_dist = params['h3_c1_dist']
+            h4_c2_dist = params['h4_c2_dist']
+            h5_c2_dist = params['h5_c2_dist']
+            h6_c2_dist = params['h6_c2_dist']
+
+            c_c_angle = params['c_c_angle']
+            c1_c_angle = params['c1_c_angle']
+            c2_c_angle = params['c2_c_angle']
+            h_c_angle = params['h_c_angle']
+            h1_c1_angle = params['h1_c1_angle']
+            h2_c1_angle = params['h2_c1_angle']
+            h3_c1_angle = params['h3_c1_angle']
+            h4_c2_angle = params['h4_c2_angle']
+            h5_c2_angle = params['h5_c2_angle']
+            h6_c2_angle = params['h6_c2_angle']
+
+            c1_dihed = params['c1_dihed']
+            c2_dihed = params['c2_dihed']
+            c3_dihed = params['c3_dihed']
+            h1_dihed = params['h1_dihed']
+            h2_dihed = params['h2_dihed']
+            h3_dihed = params['h3_dihed']
+            h4_dihed = params['h4_dihed']
+            h5_dihed = params['h5_dihed']
+            h6_dihed = params['h6_dihed']
+            h7_dihed = params['h7_dihed']
+
             fukui = lines.copy()
             fukui_dir = f'{str(Path("/")).join(str(directory).split(str(Path("/")))[:-1])}{str(Path("/fukui"))}'
-            lines.append(f'C    12.021139  1  100.078262  1  {c1_dihed}  1     {site}   {angle_atom}   {dihedral_atom}\n')
-            lines.append(f'C    1.482068  1  104.004890  1  {c2_dihed}  1     {atom_count + 1}  {site}   {angle_atom}\n')
-            lines.append(f'C    1.481423  1  104.119367  1  {c3_dihed}  1     {atom_count + 1}  {site}   {angle_atom}\n')
-            lines.append(f'H    1.103400  1   97.795054  1  {h1_dihed} 1     {atom_count + 1}  {site}   {angle_atom}\n')
-            lines.append(f'H    1.117064  1  111.484379  1  {h2_dihed}   1     {atom_count + 3}  {atom_count + 1}   {site}\n')
-            lines.append(f'H    1.120711  1  109.826665  1  {h3_dihed}  1     {atom_count + 3}  {atom_count + 1}   {site}\n')
-            lines.append(f'H    1.118015  1  110.943566  1  {h4_dihed}  1     {atom_count + 3}  {atom_count + 1}   {site}\n')
-            lines.append(f'H    1.117322  1  111.323645  1  {h5_dihed}  1     {atom_count + 2}  {atom_count + 1}   {site}\n')
-            lines.append(f'H    1.118059  1  111.047346  1  {h6_dihed}  1     {atom_count + 2}  {atom_count + 1}   {site}\n')
-            lines.append(f'H    1.120507  1  109.884160  1  {h7_dihed}  1     {atom_count + 2}  {atom_count + 1}   {site}\n')
+
+            # Using 12.0 for initial C-C distance as in original code (with the exact values from the original code)
+            lines.append(f'C    {c_c_dist}  1  {c_c_angle}  1  {c1_dihed}  1     {site}   {angle_atom}   {dihedral_atom}\n')
+            lines.append(f'C    {c1_c_dist}  1  {c1_c_angle}  1  {c2_dihed}  1     {atom_count + 1}  {site}   {angle_atom}\n')
+            lines.append(f'C    {c2_c_dist}  1  {c2_c_angle}  1  {c3_dihed}  1     {atom_count + 1}  {site}   {angle_atom}\n')
+            lines.append(f'H    {h_c_dist}  1  {h_c_angle}  1  {h1_dihed} 1     {atom_count + 1}  {site}   {angle_atom}\n')
+            lines.append(f'H    {h1_c1_dist}  1  {h1_c1_angle}  1  {h2_dihed}   1     {atom_count + 3}  {atom_count + 1}   {site}\n')
+            lines.append(f'H    {h2_c1_dist}  1  {h2_c1_angle}  1  {h3_dihed}  1     {atom_count + 3}  {atom_count + 1}   {site}\n')
+            lines.append(f'H    {h3_c1_dist}  1  {h3_c1_angle}  1  {h4_dihed}  1     {atom_count + 3}  {atom_count + 1}   {site}\n')
+            lines.append(f'H    {h4_c2_dist}  1  {h4_c2_angle}  1  {h5_dihed}  1     {atom_count + 2}  {atom_count + 1}   {site}\n')
+            lines.append(f'H    {h5_c2_dist}  1  {h5_c2_angle}  1  {h6_dihed}  1     {atom_count + 2}  {atom_count + 1}   {site}\n')
+            lines.append(f'H    {h6_c2_dist}  1  {h6_c2_angle}  1  {h7_dihed}  1     {atom_count + 2}  {atom_count + 1}   {site}\n')
 
             with open(Path(f'{directory}/temp_ts.dat'), 'w+') as tmp:
                 for string in lines:
@@ -1469,7 +1784,6 @@ def ipr_reactant(input_file: str, xyz: str, site: int, directory: str, positivel
 
             check_call(['obabel', '-imopin', Path(f'{directory}/temp_ts.dat'), '-oxyz', '-O',
                         Path(f'{directory}/temp_ts.xyz')], stdout=DEVNULL, stderr=STDOUT)
-            # os.system('obabel -imopin temp_ts.dat -oxyz -O temp_ts.xyz > /dev/null 2>&1')
             with open(Path(f'{directory}/temp_ts.xyz'), 'r+') as inp:
                 lin = inp.readlines()
                 cartesian = lin[2:]
@@ -1485,7 +1799,6 @@ def ipr_reactant(input_file: str, xyz: str, site: int, directory: str, positivel
                            check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 1),
                            check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian))]
             while any(check_atoms) is True:
-                # print('here')
                 rotation_spacing = 360/72
                 c1_dihed += rotation_spacing
                 c2_dihed += rotation_spacing
@@ -1497,16 +1810,17 @@ def ipr_reactant(input_file: str, xyz: str, site: int, directory: str, positivel
                 h5_dihed += rotation_spacing
                 h6_dihed += rotation_spacing
                 h7_dihed += rotation_spacing
-                lines[-10] = f'C    12.021139  1  100.078262  1  {c1_dihed}  1     {site}   {angle_atom}   {dihedral_atom}\n'
-                lines[-9] = f'C    1.482068  1  104.004890  1  {c2_dihed}  1     {atom_count + 1}  {site}   {angle_atom}\n'
-                lines[-8] = f'C    1.481423  1  104.119367  1  {c3_dihed}  1     {atom_count + 1}  {site}   {angle_atom}\n'
-                lines[-7] = f'H    1.103400  1   97.795054  1  {h1_dihed} 1     {atom_count + 1}  {site}   {angle_atom}\n'
-                lines[-6] = f'H    1.117064  1  111.484379  1  {h2_dihed}   1     {atom_count + 3}  {atom_count + 1}   {site}\n'
-                lines[-5] = f'H    1.120711  1  109.826665  1  {h3_dihed}  1     {atom_count + 3}  {atom_count + 1}   {site}\n'
-                lines[-4] = f'H    1.118015  1  110.943566  1  {h4_dihed}  1     {atom_count + 3}  {atom_count + 1}   {site}\n'
-                lines[-3] = f'H    1.117322  1  111.323645  1  {h5_dihed}  1     {atom_count + 2}  {atom_count + 1}   {site}\n'
-                lines[-2] = f'H    1.118059  1  111.047346  1  {h6_dihed}  1     {atom_count + 2}  {atom_count + 1}   {site}\n'
-                lines[-1] = f'H    1.120507  1  109.884160  1  {h7_dihed}  1     {atom_count + 2}  {atom_count + 1}   {site}\n'
+
+                lines[-10] = f'C    {c_c_dist}  1  {c_c_angle}  1  {c1_dihed}  1     {site}   {angle_atom}   {dihedral_atom}\n'
+                lines[-9] = f'C    {c1_c_dist}  1  {c1_c_angle}  1  {c2_dihed}  1     {atom_count + 1}  {site}   {angle_atom}\n'
+                lines[-8] = f'C    {c2_c_dist}  1  {c2_c_angle}  1  {c3_dihed}  1     {atom_count + 1}  {site}   {angle_atom}\n'
+                lines[-7] = f'H    {h_c_dist}  1  {h_c_angle}  1  {h1_dihed} 1     {atom_count + 1}  {site}   {angle_atom}\n'
+                lines[-6] = f'H    {h1_c1_dist}  1  {h1_c1_angle}  1  {h2_dihed}   1     {atom_count + 3}  {atom_count + 1}   {site}\n'
+                lines[-5] = f'H    {h2_c1_dist}  1  {h2_c1_angle}  1  {h3_dihed}  1     {atom_count + 3}  {atom_count + 1}   {site}\n'
+                lines[-4] = f'H    {h3_c1_dist}  1  {h3_c1_angle}  1  {h4_dihed}  1     {atom_count + 3}  {atom_count + 1}   {site}\n'
+                lines[-3] = f'H    {h4_c2_dist}  1  {h4_c2_angle}  1  {h5_dihed}  1     {atom_count + 2}  {atom_count + 1}   {site}\n'
+                lines[-2] = f'H    {h5_c2_dist}  1  {h5_c2_angle}  1  {h6_dihed}  1     {atom_count + 2}  {atom_count + 1}   {site}\n'
+                lines[-1] = f'H    {h6_c2_dist}  1  {h6_c2_angle}  1  {h7_dihed}  1     {atom_count + 2}  {atom_count + 1}   {site}\n'
 
                 os.remove(Path(f'{directory}/temp_ts.dat'))
                 os.remove(Path(f'{directory}/temp_ts.xyz'))
@@ -1528,21 +1842,21 @@ def ipr_reactant(input_file: str, xyz: str, site: int, directory: str, positivel
                                check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 3),
                                check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 2),
                                check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian) - 1),
-                               check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian))] # TODO RA: For loop?
+                               check_for_clashes(Path(f'{directory}/temp_ts.xyz'), len(cartesian))]
 
         os.remove(Path(f'{directory}/temp_ts.dat'))
         os.remove(Path(f'{directory}/temp_ts.xyz'))
         os.remove(f'{input_file}')
         with open(f'{input_file}', 'w+') as file:
             for string in lines:
-                # print(string)
                 file.write(str(string))
 
         check_call([mopac_path, f'{input_file}'], stdout=DEVNULL, stderr=STDOUT)
-        lines[-10] = f'C    50.000000  1  100.078262  1  {c1_dihed}  1     {site}   {angle_atom}   {dihedral_atom}\n'
+
+        # Set C-C distance to 50.0 for final structure as in original code
+        lines[-10] = f'C    50.000000  1  {c_c_angle}  1  {c1_dihed}  1     {site}   {angle_atom}   {dihedral_atom}\n'
         with open(Path(f'{directory}/HF_reagent.dat'), 'w+') as file:
             for string in lines:
-                # print(string)
                 file.write(str(string))
         with open(Path(f'{fukui_dir}/hf.dat'), 'w+') as f:
             for st in fukui:
@@ -1571,7 +1885,7 @@ def ipr_reactant(input_file: str, xyz: str, site: int, directory: str, positivel
                         break
             with open(hf_calcs_file, 'a') as fi:
                 fi.write(str(Path(f'{directory}/hf.sdf\n')))
-                fi.write(str(Path(f'{fukui_dir}/hf.sdf')))
+                fi.write(str(Path(f'{fukui_dir}/hf.sdf\n')))
         else:
             with open(hf_calcs_file, 'w') as fil:
                 fil.write(str(Path(f'{directory}/hf.sdf\n')))
@@ -1602,74 +1916,55 @@ def tweak_distance(input_file: Path, radical: str, directory: Path) -> None:
     :rtype: None
     """
 
+    if radical not in RADICAL_PARAMS:
+        print(f"Unsupported radical type: {radical}")
+        return
+
     os.remove(Path(f'{directory}/ts2.out'))
+
+    # First attempt with initial bond length
     with open(f'{input_file}', 'r+') as relaxed:
         lines = relaxed.readlines()
-        if radical == 'cf3':
-            tweak = lines[-4].split()
-            tweak[1] = '1.900000'
-            tweak.append('\n')
-            t = "\t"
-            t = t.join(tweak)
-            lines[-4] = t
+        line_index = RADICAL_PARAMS[radical]['line_offset']
+        tweak = lines[line_index].split()
+        tweak[1] = RADICAL_PARAMS[radical]['bond_lengths']['initial']
+        tweak.append('\n')
+        t = "\t"
+        t = t.join(tweak)
+        lines[line_index] = t
 
-        elif radical == 'cf2h':
-            tweak = lines[-4].split()
-            tweak[1] = '1.900000'
-            tweak.append('\n')
-            t = "\t"
-            t = t.join(tweak)
-            lines[-4] = t
-
-        elif radical == 'ipr':
-            tweak = lines[-10].split()
-            tweak[1] = '1.900000'
-            tweak.append('\n')
-            t = "\t"
-            t = t.join(tweak)
-            lines[-10] = t
     os.remove(f'{input_file}')
     with open(f'{input_file}', 'w+') as file:
         for string in lines:
             # print(string)
             file.write(str(string))
+
     check_call([mopac_path, f'{input_file}'], stdout=DEVNULL, stderr=STDOUT)
+
     if os.path.isfile(Path(f'{directory}/ts2.arc')) is True:
         return
     else:
+        # Retry with alternative bond length
         with open(f'{input_file}', 'r+') as relaxed:
             lines = relaxed.readlines()
-            if radical == 'cf3':
-                tweak = lines[-4].split()
-                tweak[1] = '2.100000'
-                tweak.append('\n')
-                t = "\t"
-                t = t.join(tweak)
-                lines[-4] = t
-
-            elif radical == 'cf2h':
-                tweak = lines[-4].split()
-                tweak[1] = '2.100000'
-                tweak.append('\n')
-                t = "\t"
-                t = t.join(tweak)
-                lines[-4] = t
-
-            elif radical == 'ipr':
-                tweak = lines[-10].split()
-                tweak[1] = '2.100000'
-                tweak.append('\n')
-                t = "\t"
-                t = t.join(tweak)
-                lines[-10] = t
+            line_index = RADICAL_PARAMS[radical]['line_offset']
+            tweak = lines[line_index].split()
+            tweak[1] = RADICAL_PARAMS[radical]['bond_lengths']['retry']
+            tweak.append('\n')
+            t = "\t"
+            t = t.join(tweak)
+            lines[line_index] = t
 
     os.remove(f'{input_file}')
     with open(f'{input_file}', 'w+') as file:
         for string in lines:
             # print(string)
             file.write(str(string))
+
     check_call([mopac_path, f'{input_file}'], stdout=DEVNULL, stderr=STDOUT)
+
     if os.path.isfile(Path(f'{directory}/ts2.arc')) is True:
         return
     else:
         print('Did not converge')
+

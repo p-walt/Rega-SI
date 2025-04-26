@@ -35,27 +35,102 @@ def findlargest(arr):
 
     for i in range(len(arr)):
         if arr[i] > secondlargest and arr[i] != largest:
-            secondLargest = arr[i] # TODO RA: This will break
+            secondLargest = arr[i]
 
     return secondlargest
 
 
-def store_data(compound_name, smiles, compound_sites, radical, reactant_optimised,
-                   ts_converged, directory, hpc_calcs, prev_molecule_dict=None, product_smiles_dict=None):
+def store_data(compound_name: str, smiles: str, compound_sites: list, radical: str,
+               reactant_optimised: bool, ts_converged: dict, directory: str,
+               hpc_calcs: bool, prev_molecule_dict: dict = None,
+               product_smiles_dict: dict = None) -> dict:
     """
-    Function that grabs the energies from the HF and AM1 calcualtions and stores them in the data dictionary.
-    Also calculates the ratio of products for each compound based on difference between AM1 or HF activation energies.
-        @param compound_name: Name in molecules_list.csv.
-        @param smiles: The compound of interest SMILES string.
-        @param compound_sites: Site of reaction in the molecule in question.
-        @param radical: The radical of interest.
-        @param reactant_optimised: Whether the reactant successfully optimised or not.
-        @param ts_converged: Whether the transition state was actually a true AM1 transition state (checked through freq
-        calculation) for each site.
-        @param directory: Compound Directory.
-        @param prev_molecule_dict: If calculated previously the molecule dictionary is passed into the function and the
-        new radical data is added.
-        @return: Data dictionary."""# TODO RA: types?
+    Stores and processes chemical compound data based on the input parameters, performing operations such
+    as reading files for energy calculations, updating provided molecule dictionaries, and calculating Fukui
+    functions and electronic properties. This function is used for the analysis of reaction sites and
+    properties in chemical simulations.
+
+    :param compound_name: Name of the compound for which data is being processed.
+    :type compound_name: str
+    :param smiles: SMILES representation of the compound.
+    :type smiles: str
+    :param compound_sites: List specifying the active sites of the compound.
+    :type compound_sites: list
+    :param radical: Radical associated with the compound.
+    :type radical: str
+    :param reactant_optimised: Flag indicating whether the reactant is optimised.
+    :type reactant_optimised: bool
+    :param ts_converged: Dictionary containing convergence information for transition states.
+    :type ts_converged: dict
+    :param directory: Directory path where required files are located.
+    :type directory: str
+    :param hpc_calcs: Flag indicating whether high-performance computing calculations are used.
+    :type hpc_calcs: bool
+    :param prev_molecule_dict: (Optional) Dictionary containing pre-existing molecule data.
+    :type prev_molecule_dict: dict, optional
+    :param product_smiles_dict: (Optional) Dictionary of product SMILES data.
+    :type product_smiles_dict: dict, optional
+
+    :return: A nested dictionary with the following structure:
+        {
+            'compound_name': str,  # Name of the compound
+            'smiles': str,         # SMILES representation of the compound
+            'radicals': {
+                '<radical_name>': {
+                    'radical': str,  # Name of the radical
+                    'hf_reactant_energy': float or str,  # HF energy of reactant or error message
+                    'am1_reactant_energy': float or str,  # AM1 energy of reactant or error message
+
+                    # For each reaction site
+                    '<site_number>': {
+                        'site': str,  # Site identifier
+                        'product_smiles': str,  # SMILES of product (if provided)
+
+                        # Energies and activation energies
+                        'am1_ts_energy': float or str,  # AM1 transition state energy
+                        'am1_act_energy': float or str,  # AM1 activation energy
+                        'am1_ratio': float or str,       # Ratio for site reactivity comparison
+
+                        # If HPC calculations are enabled
+                        'hf_ts_energy': float or str,    # HF transition state energy
+                        'hf_act_energy': float or str,   # HF activation energy
+                        'hf_ratio': float or str,        # Ratio for site reactivity comparison
+
+                        # Bond information
+                        'HF_C-H_Bond_Length': float,     # C-H bond length from HF calculation
+                        'HF_TS_C-C_Bond_Length': float or str,  # C-C bond length in transition state
+
+                        # Fukui function values and electronic properties
+                        'fa+': float or str,  # Fukui function (plus)
+                        'fa-': float or str,  # Fukui function (minus)
+                        'fa0': float or str,  # Fukui function (zero)
+
+                        # Electronic structure properties
+                        'electron_density': float or str,
+                        'electrostatic_potential': float or str,
+                        'diamagnetic_shielding': float or str,
+                        'mulliken_charge': float or str,
+                        'bond_index': float or str,
+                        'gross_population': float or str,
+
+                        # Structural data
+                        'system_size': str,  # Size of the system
+                        'hf_cartesian_coordinates': list  # Coordinates from HF calculation
+                    },
+                    # Additional sites with the same structure...
+                }
+                # Additional radicals with the same structure...
+            }
+        }
+
+    Note: If no reaction sites are found, the dictionary will contain:
+        {'compound_name': str, 'smiles': str, 'No Sites of reaction found': 'No sites of reaction found'}
+
+    Values may be numerical (float) or strings (often 'No TS Found', 'NOT FOUND', or 'N/A')
+    when calculations failed or data is unavailable.
+    :rtype: dict
+    """
+
     fplus_dict = {}
     fmin_dict = {}
     f0_dict = {}
@@ -64,7 +139,6 @@ def store_data(compound_name, smiles, compound_sites, radical, reactant_optimise
     mulliken_dict = {}
     esp_dia_dict = {}
     elec_density_dict = {}
-    # TODO RA: Hard coded values...
 
     if radical == 'cf3':
         radical_reactant_energy = -1583.81910
@@ -828,5 +902,3 @@ def store_data(compound_name, smiles, compound_sites, radical, reactant_optimise
     
     return molecule_dict
 
-
-# TODO RA: Would be good to have somewere a description of the data dictionary. (What its structure is)

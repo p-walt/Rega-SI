@@ -591,7 +591,7 @@ def calculate_am1_energies_list(input_file, starting_directory, csv_dir, random_
                              Path(f'{csv_dir}/{md5_hash}/am1.dat')], stdout=DEVNULL,
                             stderr=STDOUT)
                     # os.system('obabel -ixyz mm.xyz -omopin -O am1.dat > /dev/null 2>&1')
-                    for site in aromatic_atom: # TODO RA: This is a bit confusing, I feel like this could be a nested for loop over a list of files? 
+                    for site in aromatic_atom:
                         if os.path.isdir(Path(f'{csv_dir}/{md5_hash}/{site}')):
                             pass
                         else:
